@@ -2,6 +2,7 @@ import { handleActions } from 'redux-actions';
 import { createSelector } from 'reselect';
 import { chunk, sortBy as sortByLodash, pick } from 'lodash';
 import { set } from 'object-path-immutable';
+import { createCollectionReducer, getItems } from "../../lib/collection";
 
 import {
   selectTimeField,
@@ -24,12 +25,10 @@ const defaultState = {
     timeFields: undefined,
     selectedTimeField: undefined,
   },
-  results: {
-    indices: undefined,
-    pattern: undefined,
-    hasExactMatches: false,
-  }
-}
+  foundIndices: null,
+  searchPattern: null,
+  foundExactMatches: false,
+};
 
 export default handleActions({
   [selectTimeField](state, { payload }) {
@@ -66,16 +65,14 @@ export default handleActions({
     };
   },
   [fetchedIndices](state, { payload }) {
-    const { indices, hasExactMatches, pattern } = payload;
+    const { searchPattern, foundIndices, foundExactMatches } = payload;
 
     return {
       ...state,
-      results: {
-        ...state.results,
-        indices,
-        hasExactMatches,
-        pattern,
-      },
+      foundIndices,
+      foundExactMatches,
+      searchPattern,
+      collectionMetadata: createCollectionReducer('foundIndices')
     };
   },
   [creatingIndexPattern](state, action) {
@@ -92,18 +89,24 @@ export default handleActions({
   },
 }, defaultState);
 
-export const getPattern = state => getIndexPatternCreate(state).results.pattern;
+export const getSearchPattern = state => getIndexPatternCreate(state).searchPattern;
 export const getSelectedTimeField = state => getIndexPatternCreate(state).timeFields.selectedTimeField;
 export const getTimeFields = state => getIndexPatternCreate(state).timeFields;
 export const getCreation = state => {
   const {
     isIncludingSystemIndices,
     isCreating,
-    results: {
-      hasExactMatches,
-    },
+    foundExactMatches,
   } = getIndexPatternCreate(state);
-  return { isCreating, isIncludingSystemIndices, hasExactMatches };
+  return { isCreating, isIncludingSystemIndices, foundExactMatches };
 };
 export const getIsIncludingSystemIndices = state => getIndexPatternCreate(state).isIncludingSystemIndices;
 export const getResults = state => getIndexPatternCreate(state).results;
+export const getFoundIndices = (state) => {
+  console.log(state)
+  const { foundIndices, collectionMetadata } = getIndexPatternCreate(state);
+  return foundIndices ? getItems(foundIndices, collectionMetadata) : {};
+};
+export const foundExactMatches = (state) => {
+  return getIndexPatternCreate(state).foundExactMatches;
+};

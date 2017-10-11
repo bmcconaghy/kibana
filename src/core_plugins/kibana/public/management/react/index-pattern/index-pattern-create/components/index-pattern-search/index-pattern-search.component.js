@@ -9,7 +9,7 @@ import {
 import { InputPatternInputField } from './lib/index-pattern-input-field';
 
 const IndexPatternSearch = ({
-  hasExactMatches,
+  foundExactMatches,
   fetchIndices,
 }) => {
   return (
@@ -26,7 +26,7 @@ const IndexPatternSearch = ({
         </KuiFlexItem>
         <KuiFlexItem grow={false}>
           <KuiIcon
-            type={hasExactMatches ? 'check' : 'cross'}
+            type={foundExactMatches ? 'check' : 'cross'}
             size="medium"
           />
         </KuiFlexItem>

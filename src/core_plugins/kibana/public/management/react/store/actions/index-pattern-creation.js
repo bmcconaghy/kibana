@@ -4,7 +4,7 @@ import { createAction } from 'redux-actions';
 import { createThunk } from 'redux-thunks';
 
 import {
-  getPattern,
+  getSearchPattern,
   getSelectedTimeField,
 } from '../reducers/index-pattern-creation';
 
@@ -30,7 +30,7 @@ export const creatingIndexPattern = createAction('CREATING_INDEX_PATTERN');
 export const createdIndexPattern = createAction('CREATED_INDEX_PATTERN');
 
 export const fetchedIndices = createAction('FETCHED_INDICES',
-  (indices, pattern, hasExactMatches) => ({ pattern, indices, hasExactMatches })
+  (foundIndices, searchPattern, foundExactMatches) => ({ searchPattern, foundIndices, foundExactMatches })
 );
 
 export const fetchIndices = createThunk('FETCH_INDICES',
@@ -58,7 +58,7 @@ export const fetchIndices = createThunk('FETCH_INDICES',
 export const createIndexPattern = createThunk('CREATE_INDEX_PATTERN',
   async ({ dispatch, getState }) => {
     const state = getState();
-    const pattern = getPattern(state);
+    const pattern = getSearchPattern(state);
     const timeFieldName = getSelectedTimeField(state);
 
     dispatch(creatingIndexPattern);

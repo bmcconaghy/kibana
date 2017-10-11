@@ -24,9 +24,9 @@ const IndexPatternResults = ({
   page,
   sortBy,
   sortAsc,
-  setSort,
-  setPage,
-  setPerPage,
+  setSortField,
+  setPageNumber,
+  setPageSize,
 }) => {
   if (indices === undefined) {
     return null;
@@ -54,7 +54,7 @@ const IndexPatternResults = ({
         <KuiTableHeader>
           <KuiTableHeaderCell>
             <KuiButtonEmpty
-              onClick={() => setSort('name')}
+              onClick={() => setSortField('name')}
             >
               Name
               { sortBy === 'name'
@@ -72,7 +72,7 @@ const IndexPatternResults = ({
           </KuiTableHeaderCell>
           <KuiTableHeaderCell>
             <KuiButtonEmpty
-              onClick={() => setSort('count')}
+              onClick={() => setSortField('count')}
             >
               Doc Count
               { sortBy === 'count'
@@ -101,7 +101,7 @@ const IndexPatternResults = ({
           </KuiText>
           <KuiSelect
             value={perPage}
-            onChange={(e) => setPerPage(e.target.value)}
+            onChange={(e) => setPageSize(e.target.value)}
             options={[
               { value: 1, text: 1 },
               { value: 10, text: 10 },
@@ -116,7 +116,7 @@ const IndexPatternResults = ({
               <KuiPagination
                 pageCount={numOfPages}
                 activePage={page}
-                onPageClick={setPage}
+                onPageClick={setPageNumber}
               />
             </KuiFlexItem>
           : null

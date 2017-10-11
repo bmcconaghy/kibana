@@ -1,6 +1,5 @@
 /* eslint-disable */
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import IndexPatternSearch from './index-pattern-search.component';
 
 import {
@@ -13,8 +12,8 @@ import {
 
 export default connect(
   state => {
-    const { hasExactMatches } = getIndexPatternCreate(state).results;
-    return { hasExactMatches };
+    const { foundExactMatches } = getIndexPatternCreate(state);
+    return { foundExactMatches };
   },
   { fetchIndices },
 )(IndexPatternSearch);
