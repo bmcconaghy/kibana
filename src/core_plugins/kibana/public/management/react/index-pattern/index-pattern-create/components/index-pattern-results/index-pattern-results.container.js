@@ -19,11 +19,11 @@ import {
 
 export default connect(
   (state, ownProps) => {
-    const { foundIndices, numPages }  = getFoundIndices(state);
+    const { items, numPages }  = getFoundIndices(state);
     const { isIncludingSystemIndices } = ownProps;
-    console.log(foundIndices)
-    const indices = foundIndices
-      ? foundIndices.filter(item => item.name[0] !== '.' || isIncludingSystemIndices)
+    console.log(items)
+    const indices = items
+      ? items.filter(item => item.name[0] !== '.' || isIncludingSystemIndices)
       : undefined;
 
     return {

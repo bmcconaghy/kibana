@@ -34,8 +34,8 @@ export const fetchedIndices = createAction('FETCHED_INDICES',
 );
 
 export const fetchIndices = createThunk('FETCH_INDICES',
-  async ({ dispatch }, pattern, initialFetch = false) => {
-    let partialPattern = pattern;
+  async ({ dispatch }, searchPattern, initialFetch = false) => {
+    let partialPattern = searchPattern;
     if (!endsWith(partialPattern, '*')) {
       partialPattern = `${partialPattern}*`;
     }
@@ -43,14 +43,14 @@ export const fetchIndices = createThunk('FETCH_INDICES',
       partialPattern = `*${partialPattern}`;
     }
 
-    const exactIndices = await getIndices(pattern);
+    const exactIndices = await getIndices(searchPattern);
     const partialIndices = await getIndices(partialPattern);
-    const indices = uniq(exactIndices.concat(partialIndices), item => item.name);
-    const hasExactMatches = !initialFetch && exactIndices.length > 0;
-    dispatch(fetchedIndices(indices, pattern, hasExactMatches));
+    const foundIndices = uniq(exactIndices.concat(partialIndices), item => item.name);
+    const foundExactMatches = !initialFetch && exactIndices.length > 0;
+    dispatch(fetchedIndices(foundIndices, searchPattern, foundExactMatches));
 
-    if (hasExactMatches) {
-      fetchTimeFields(pattern)(dispatch);
+    if (foundExactMatches) {
+      fetchTimeFields(searchPattern)(dispatch);
     }
   }
 );

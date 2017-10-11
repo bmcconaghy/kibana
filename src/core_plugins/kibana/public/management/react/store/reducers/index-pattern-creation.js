@@ -1,8 +1,11 @@
 import { handleActions } from 'redux-actions';
+import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
 import { chunk, sortBy as sortByLodash, pick } from 'lodash';
 import { set } from 'object-path-immutable';
-import { createCollectionReducer, getItems } from "../../lib/collection";
+import { getDefaults, createActionHandlers, getItems, metadataKeyName } from "../../lib/collection";
+
+const FOUND_INDICES = 'FOUND_INDICES';
 
 import {
   selectTimeField,
@@ -19,18 +22,17 @@ import {
 } from '../../reducers';
 
 const defaultState = {
+    ...getDefaults(FOUND_INDICES),
   isIncludingSystemIndices: false,
   isCreating: false,
   timeFields: {
     timeFields: undefined,
     selectedTimeField: undefined,
   },
-  foundIndices: null,
-  searchPattern: null,
-  foundExactMatches: false,
 };
 
 export default handleActions({
+  ...createActionHandlers(FOUND_INDICES),
   [selectTimeField](state, { payload }) {
     const { timeFields } = payload;
 
@@ -72,7 +74,6 @@ export default handleActions({
       foundIndices,
       foundExactMatches,
       searchPattern,
-      collectionMetadata: createCollectionReducer('foundIndices')
     };
   },
   [creatingIndexPattern](state, action) {
@@ -103,9 +104,9 @@ export const getCreation = state => {
 export const getIsIncludingSystemIndices = state => getIndexPatternCreate(state).isIncludingSystemIndices;
 export const getResults = state => getIndexPatternCreate(state).results;
 export const getFoundIndices = (state) => {
-  console.log(state)
-  const { foundIndices, collectionMetadata } = getIndexPatternCreate(state);
-  return foundIndices ? getItems(foundIndices, collectionMetadata) : {};
+  const indexPatternCreate = getIndexPatternCreate(state);
+  const { foundIndices } = indexPatternCreate;
+  return foundIndices ? getItems(foundIndices, indexPatternCreate, FOUND_INDICES) : {};
 };
 export const foundExactMatches = (state) => {
   return getIndexPatternCreate(state).foundExactMatches;

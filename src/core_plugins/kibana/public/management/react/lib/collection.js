@@ -1,41 +1,65 @@
-import { once, chunk } from 'lodash';
+import { chunk, sortBy as sortByLodash, once } from 'lodash';
 import { createAction, handleActions } from 'redux-actions';
 
 const defaults = {
   sortAsc: true,
-  pageNumber: 1,
+  pageNumber: 0,
   pageSize: 10,
   sortField: 'name'
 };
-export const createCollectionReducer = (name) => {
+
+export const getDefaults = (name) => {
+  return {
+    [metadataKeyName(name)]: {
+      ...defaults
+    }
+  };
+};
+
+export const metadataKeyName = (name) => (`__collection_metadata_${name}`);
+
+export const createActionHandlers = once((name) => {
   const { setSortField, setSortAsc, setPageNumber, setPageSize } = getCollectionActions(name);
-  return handleActions({
+  const keyName = metadataKeyName(name);
+  return {
     [setSortField](state, { payload }) {
       return {
         ...state,
-        sortField: payload
+        [keyName] : {
+          ...state[keyName],
+          sortField: payload
+        }
       };
     },
     [setSortAsc](state, { payload }) {
       return {
         ...state,
-        sortAsc: payload
+        [keyName] : {
+          ...state[keyName],
+          sortAsc: payload
+        }
       };
     },
     [setPageNumber](state, { payload }) {
       return {
         ...state,
-        pageNumber: payload
+        [keyName] : {
+          ...state[keyName],
+          pageNumber: payload
+        }
       };
     },
     [setPageSize](state, { payload }) {
       return {
         ...state,
-        pageSize: payload
+        [keyName] : {
+          ...state[keyName],
+          pageSize: payload
+        }
       };
     }
-  }, defaults);
-};
+  };
+});
 
 export const getCollectionActions = once((name) => {
   return {
@@ -46,10 +70,13 @@ export const getCollectionActions = once((name) => {
   }
 });
 
-export const getItems = (items, metadata) => {
-  const { sortBy, sortAsc, page, perPage, filterBy } = metadata;
+export const getItems = (items, metadataContainer, name) => {
+  console.log(metadataContainer);
+  const metadata = metadataContainer[metadataKeyName(name)];
+  console.log(items)
+  const { sortField, sortAsc, pageNumber, pageSize, filterBy } = metadata;
 
-  const numOfPages = Math.ceil(items.length / perPage);
+  const numOfPages = Math.ceil(items.length / pageSize);
 
   // filter
   // if (!!filters) {
@@ -64,16 +91,18 @@ export const getItems = (items, metadata) => {
   // }
 
   // sort
-  if (!!sortBy) {
-    items = sortByLodash(items, sortBy);
+  if (!!sortField) {
+    items = sortByLodash(items, sortField);
     if (!!!sortAsc) {
       items.reverse();
     }
   }
 
   // paginate
-  const pages = chunk(items, perPage);
-  items = pages[page] || [];
-
+  const pages = chunk(items, pageSize);
+  console.log(pages)
+  items = pages[pageNumber] || [];
+  console.log(`SORTED`)
+  console.log(items)
   return { items, numOfPages };
 }
