@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-class Api {
+export default class Api {
   constructor(name) {
     this.globalRules = {};
     this.endpoints = {};
@@ -48,5 +48,3 @@ class Api {
   }
 
 }
-
-export default Api;
