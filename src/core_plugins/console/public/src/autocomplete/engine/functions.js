@@ -1,18 +1,7 @@
 import _ from 'lodash';
 
 export function wrapComponentWithDefaults(component, defaults) {
-  function Wrapper() {
-
-  }
-
-  Wrapper.prototype = {};
-  for (const key in component) {
-    if (_.isFunction(component[key])) {
-      Wrapper.prototype[key] = _.bindKey(component, key);
-    }
-  }
-
-  Wrapper.prototype.getTerms = function (context, editor) {
+  component.getTerms = function (context, editor) {
     let result = component.getTerms(context, editor);
     if (!result) {
       return result;
@@ -25,7 +14,7 @@ export function wrapComponentWithDefaults(component, defaults) {
     }, this);
     return result;
   };
-  return new Wrapper();
+  return component;
 }
 
 const tracer = function () {

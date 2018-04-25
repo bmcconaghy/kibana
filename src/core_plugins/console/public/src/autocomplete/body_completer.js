@@ -112,7 +112,8 @@ function compileObject(objDescription, compilingContext) {
       return;
     }
 
-    let options = getOptions(desc), component;
+    const options = getOptions(desc);
+    let component;
     if (/^\{.*\}$/.test(key)) {
       component = compileParametrizedValue(key, compilingContext, options.template);
       patterns.push(component);
@@ -127,7 +128,13 @@ function compileObject(objDescription, compilingContext) {
       constants.push(component);
     }
     _.map(compileDescription(desc, compilingContext), function (subComponent) {
-      component.addComponent(subComponent);
+      try {
+        component.addComponent(subComponent);
+      } catch (error) {
+        console.log('ERROR', error);
+        console.log('COMPONENT', component);
+      }
+
     });
   });
   objectC.addComponent(new ObjectComponent('inner', constants, patterns));
