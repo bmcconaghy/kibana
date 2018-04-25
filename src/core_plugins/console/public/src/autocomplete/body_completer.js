@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import _ from 'lodash';
 const engine = require('./engine');
 
 function CompilingContext(endpoint_id, parametrizedComponentFactories) {
@@ -24,7 +24,7 @@ function getTemplate(description) {
     if (description.length == 1) {
       if (_.isObject(description[0])) {
         // shortcut to save typing
-        var innerTemplate = getTemplate(description[0]);
+        const innerTemplate = getTemplate(description[0]);
 
         return innerTemplate != null ? [innerTemplate] : [];
       }
@@ -43,8 +43,8 @@ function getTemplate(description) {
 }
 
 function getOptions(description) {
-  var options = {};
-  var template = getTemplate(description);
+  const options = {};
+  const template = getTemplate(description);
 
   if (!_.isUndefined(template)) {
     options.template = template;
@@ -63,7 +63,7 @@ function compileDescription(description, compilingContext) {
   else if (_.isObject(description)) {
     // test for objects list as arrays are also objects
     if (description.__scope_link) {
-      return [new ScopeResolver(description.__scope_link, compilingContext)]
+      return [new ScopeResolver(description.__scope_link, compilingContext)];
     }
     if (description.__any_of) {
       return [compileList(description.__any_of, compilingContext)];
@@ -73,7 +73,7 @@ function compileDescription(description, compilingContext) {
         return compileDescription(d, compilingContext);
       }));
     }
-    let obj = compileObject(description, compilingContext);
+    const obj = compileObject(description, compilingContext);
     if (description.__condition) {
       return [compileCondition(description.__condition, obj, compilingContext)];
     } else {
@@ -91,9 +91,9 @@ function compileDescription(description, compilingContext) {
 
 function compileParametrizedValue(value, compilingContext, template) {
   value = value.substr(1, value.length - 2).toLowerCase();
-  var component = compilingContext.parametrizedComponentFactories[value];
+  let component = compilingContext.parametrizedComponentFactories[value];
   if (!component) {
-    throw new Error("no factory found for '" + value + "'");
+    throw new Error('no factory found for \'' + value + '\'');
   }
   component = component(value, null, template);
   if (!_.isUndefined(template)) {
@@ -104,20 +104,20 @@ function compileParametrizedValue(value, compilingContext, template) {
 }
 
 function compileObject(objDescription, compilingContext) {
-  var objectC = new engine.ConstantComponent("{");
-  var constants = [], patterns = [];
+  const objectC = new engine.ConstantComponent('{');
+  let constants = [], patterns = [];
   _.each(objDescription, function (desc, key) {
-    if (key.indexOf("__") == 0) {
+    if (key.indexOf('__') == 0) {
       // meta key
       return;
     }
 
-    var options = getOptions(desc), component;
+    let options = getOptions(desc), component;
     if (/^\{.*\}$/.test(key)) {
       component = compileParametrizedValue(key, compilingContext, options.template);
       patterns.push(component);
     }
-    else if (key === "*") {
+    else if (key === '*') {
       component = new engine.SharedComponent(key);
       patterns.push(component);
     }
@@ -130,12 +130,12 @@ function compileObject(objDescription, compilingContext) {
       component.addComponent(subComponent);
     });
   });
-  objectC.addComponent(new ObjectComponent("inner", constants, patterns));
+  objectC.addComponent(new ObjectComponent('inner', constants, patterns));
   return objectC;
 }
 
 function compileList(listRule, compilingContext) {
-  var listC = new engine.ConstantComponent("[");
+  const listC = new engine.ConstantComponent('[');
   _.each(listRule, function (desc) {
     _.each(compileDescription(desc, compilingContext), function (component) {
       listC.addComponent(component);
@@ -148,11 +148,11 @@ function compileList(listRule, compilingContext) {
 function compileCondition(description, compiledObject) {
   if (description.lines_regex) {
     return new ConditionalProxy(function (context, editor) {
-      let lines = editor.getSession().getLines(context.requestStartRow, editor.getCursorPosition().row).join("\n");
-      return new RegExp(description.lines_regex, "m").test(lines);
+      const lines = editor.getSession().getLines(context.requestStartRow, editor.getCursorPosition().row).join('\n');
+      return new RegExp(description.lines_regex, 'm').test(lines);
     }, compiledObject);
   } else {
-    throw "unknown condition type - got: " + JSON.stringify(description);
+    throw 'unknown condition type - got: ' + JSON.stringify(description);
   }
 }
 
@@ -161,20 +161,14 @@ function compileCondition(description, compiledObject) {
  * @param patternsAndWildCards list of components that represent patterns and should be matched only if
  * there is no constant matches
  */
-function ObjectComponent(name, constants, patternsAndWildCards) {
-  engine.AutocompleteComponent.call(this, name);
-  this.constants = constants;
-  this.patternsAndWildCards = patternsAndWildCards;
-}
-
-ObjectComponent.prototype = _.create(
-  engine.AutocompleteComponent.prototype,
-  { 'constructor': ObjectComponent });
-
-
-(function (cls) {
-  cls.getTerms = function (context, editor) {
-    var options = [];
+class ObjectComponent extends engine.AutocompleteComponent {
+  constructor(name, constants, patternsAndWildCards) {
+    super(name);
+    this.constants = constants;
+    this.patternsAndWildCards = patternsAndWildCards;
+  }
+  getTerms(context, editor) {
+    const options = [];
     _.each(this.constants, function (component) {
       options.push.apply(options, component.getTerms(context, editor));
     });
@@ -182,21 +176,21 @@ ObjectComponent.prototype = _.create(
       options.push.apply(options, component.getTerms(context, editor));
     });
     return options;
-  };
+  }
 
-  cls.match = function (token, context, editor) {
-    var result = {
+  match(token, context, editor) {
+    const result = {
       next: []
     };
     _.each(this.constants, function (component) {
-      var componentResult = component.match(token, context, editor);
+      const componentResult = component.match(token, context, editor);
       if (componentResult && componentResult.next) {
         result.next.push.apply(result.next, componentResult.next);
       }
     });
 
     // try to link to GLOBAL rules
-    var globalRules = context.globalComponentResolver(token, false);
+    const globalRules = context.globalComponentResolver(token, false);
     if (globalRules) {
       result.next.push.apply(result.next, globalRules);
     }
@@ -205,16 +199,14 @@ ObjectComponent.prototype = _.create(
       return result;
     }
     _.each(this.patternsAndWildCards, function (component) {
-      var componentResult = component.match(token, context, editor);
+      const componentResult = component.match(token, context, editor);
       if (componentResult && componentResult.next) {
         result.next.push.apply(result.next, componentResult.next);
       }
     });
-
     return result;
-
-  };
-})(ObjectComponent.prototype);
+  }
+}
 
 /**
  * An object to resolve scope links (syntax endpoint.path1.path2)
@@ -227,47 +219,41 @@ ObjectComponent.prototype = _.create(
  * For this to work we expect the context to include a method context.endpointComponentResolver(endpoint)
  * which should return the top level components for the given endpoint
  */
-function ScopeResolver(link, compilingContext) {
-  engine.SharedComponent.call(this, "__scope_link", null);
-  if (_.isString(link) && link[0] === ".") {
-    // relative link, inject current endpoint
-    if (link === ".") {
-      link = compilingContext.endpoint_id;
+class ScopeResolver extends engine.SharedComponent {
+  constructor(link, compilingContext) {
+    super('__scope_link', null);
+    if (_.isString(link) && link[0] === '.') {
+      // relative link, inject current endpoint
+      if (link === '.') {
+        link = compilingContext.endpoint_id;
+      }
+      else {
+        link = compilingContext.endpoint_id + link;
+      }
     }
-    else {
-      link = compilingContext.endpoint_id + link;
-    }
+    this.link = link;
+    this.compilingContext = compilingContext;
   }
-  this.link = link;
-  this.compilingContext = compilingContext;
-}
 
-ScopeResolver.prototype = _.create(
-  engine.SharedComponent.prototype,
-  { 'constructor': ScopeResolver });
-
-
-(function (cls) {
-
-  cls.resolveLinkToComponents = function (context, editor) {
+  resolveLinkToComponents(context, editor) {
     if (_.isFunction(this.link)) {
-      var desc = this.link(context, editor);
+      const desc = this.link(context, editor);
       return compileDescription(desc, this.compilingContext);
     }
     if (!_.isString(this.link)) {
-      throw new Error("unsupported link format", this.link);
+      throw new Error('unsupported link format', this.link);
     }
 
-    var path = this.link.replace(/\./g, "{").split(/(\{)/);
-    var endpoint = path[0];
-    var components;
+    let path = this.link.replace(/\./g, '{').split(/(\{)/);
+    const endpoint = path[0];
+    let components;
     try {
-      if (endpoint === "GLOBAL") {
+      if (endpoint === 'GLOBAL') {
         // global rules need an extra indirection
         if (path.length < 3) {
-          throw new Error("missing term in global link: " + this.link);
+          throw new Error('missing term in global link: ' + this.link);
         }
-        var term = path[2];
+        const term = path[2];
         components = context.globalComponentResolver(term);
         path = path.slice(3);
       }
@@ -277,109 +263,89 @@ ScopeResolver.prototype = _.create(
       }
     }
     catch (e) {
-      throw new Error("failed to resolve link [" + this.link + "]: " + e);
+      throw new Error('failed to resolve link [' + this.link + ']: ' + e);
     }
     return engine.resolvePathToComponents(path, context, editor, components);
-  };
+  }
 
-  cls.getTerms = function (context, editor) {
-    var options = [], components = this.resolveLinkToComponents(context, editor);
+  getTerms(context, editor) {
+    let options = [], components = this.resolveLinkToComponents(context, editor);
     _.each(components, function (component) {
       options.push.apply(options, component.getTerms(context, editor));
     });
     return options;
-  };
+  }
 
-  cls.match = function (token, context, editor) {
-    var result = {
-        next: []
-      },
-      components = this.resolveLinkToComponents(context, editor);
-
+  match(token, context, editor) {
+    const result = {
+      next: []
+    };
+    const  components = this.resolveLinkToComponents(context, editor);
     _.each(components, function (component) {
-      var componentResult = component.match(token, context, editor);
+      const componentResult = component.match(token, context, editor);
       if (componentResult && componentResult.next) {
         result.next.push.apply(result.next, componentResult.next);
       }
     });
-
     return result;
-  };
-})(ScopeResolver.prototype);
-
-
-function ConditionalProxy(predicate, delegate) {
-  engine.SharedComponent.call(this, "__condition", null);
-  this.predicate = predicate;
-  this.delegate = delegate;
+  }
 }
 
-ConditionalProxy.prototype = _.create(
-  engine.SharedComponent.prototype,
-  { 'constructor': ConditionalProxy });
 
 
-(function (cls) {
 
-  cls.getTerms = function (context, editor) {
+class ConditionalProxy extends engine.SharedComponent {
+  constructor(predicate, delegate) {
+    super('__condition', null);
+    this.predicate = predicate;
+    this.delegate = delegate;
+  }
+
+  getTerms(context, editor) {
     if (this.predicate(context, editor)) {
       return this.delegate.getTerms(context, editor);
     } else {
       return null;
     }
-  };
+  }
 
-  cls.match = function (token, context, editor) {
+  match(token, context, editor) {
     if (this.predicate(context, editor)) {
       return this.delegate.match(token, context, editor);
     } else {
       return false;
     }
-  };
-})(ConditionalProxy.prototype);
-
-
-function GlobalOnlyComponent(name) {
-  engine.AutocompleteComponent.call(this, name);
+  }
 }
 
-GlobalOnlyComponent.prototype = _.create(
-  engine.AutocompleteComponent.prototype,
-  { 'constructor': ObjectComponent });
-
-
-(function (cls) {
-
-  cls.getTerms = function () {
+class GlobalOnlyComponent extends engine.AutocompleteComponent {
+  getTerms() {
     return null;
-  };
-
-  cls.match = function (token, context) {
-    var result = {
+  }
+  match(token, context) {
+    const result = {
       next: []
     };
-
     // try to link to GLOBAL rules
-    var globalRules = context.globalComponentResolver(token, false);
+    const globalRules = context.globalComponentResolver(token, false);
     if (globalRules) {
       result.next.push.apply(result.next, globalRules);
     }
-
     if (result.next.length) {
       return result;
     }
     // just loop back to us
     result.next = [this];
-
     return result;
+  }
+}
 
-  };
-})(GlobalOnlyComponent.prototype);
+
 
 
 // a list of component that match anything but give auto complete suggestions based on global API entries.
 export function globalsOnlyAutocompleteComponents() {
-  return [new GlobalOnlyComponent("__global__")];
+  return [new GlobalOnlyComponent('__global__')];
 }
 
 /**

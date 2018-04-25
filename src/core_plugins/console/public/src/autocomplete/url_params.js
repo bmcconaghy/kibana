@@ -1,56 +1,50 @@
-let _ = require('lodash');
-let engine = require('./engine');
+import _ from 'lodash';
+import { ConstantComponent, SharedComponent, ListComponent } from './engine';
 
-export function ParamComponent(name, parent, description) {
-  engine.ConstantComponent.call(this, name, parent);
-  this.description = description;
-}
-
-ParamComponent.prototype = _.create(engine.ConstantComponent.prototype, { "constructor": ParamComponent });
-
-(function (cls) {
-  cls.getTerms = function () {
-    var t = { name: this.name };
-    if (this.description === "__flag__") {
-      t.meta = "flag"
+export class ParamComponent extends ConstantComponent {
+  constructor(name, parent, description) {
+    super(name, parent);
+    this.description = description;
+  }
+  getTerms() {
+    const t = { name: this.name };
+    if (this.description === '__flag__') {
+      t.meta = 'flag';
     }
     else {
-      t.meta = "param";
-      t.insert_value = this.name + "=";
+      t.meta = 'param';
+      t.insert_value = this.name + '=';
     }
     return [t];
-  };
-
-})(ParamComponent.prototype);
-
-export function UrlParams(description, defaults) {
-  // This is not really a component, just a handy container to make iteration logic simpler
-  this.rootComponent = new engine.SharedComponent("ROOT");
-  if (_.isUndefined(defaults)) {
-    defaults = {
-      "pretty": "__flag__",
-      "format": ["json", "yaml"],
-      "filter_path": "",
-    };
   }
-  description = _.clone(description || {});
-  _.defaults(description, defaults);
-  _.each(description, function (p_description, param) {
-    var component = new ParamComponent(param, this.rootComponent, p_description);
-    if (Array.isArray(p_description)) {
-      new engine.ListComponent(param, p_description, component);
-    }
-    else if (p_description === "__flag__") {
-      new engine.ListComponent(param, ["true", "false"], component);
-    }
-  }, this);
-
 }
 
-(function (cls) {
+export class UrlParams {
+  constructor(description, defaults) {
+    // This is not really a component, just a handy container to make iteration logic simpler
+    this.rootComponent = new SharedComponent('ROOT');
+    if (_.isUndefined(defaults)) {
+      defaults = {
+        'pretty': '__flag__',
+        'format': ['json', 'yaml'],
+        'filter_path': '',
+      };
+    }
+    description = _.clone(description || {});
+    _.defaults(description, defaults);
+    _.each(description, function (paramDescription, param) {
+      const component = new ParamComponent(param, this.rootComponent, paramDescription);
+      if (Array.isArray(paramDescription)) {
+        new ListComponent(param, paramDescription, component);
+      }
+      else if (paramDescription === '__flag__') {
+        new ListComponent(param, ['true', 'false'], component);
+      }
+    }, this);
 
-  cls.getTopLevelComponents = function () {
+  }
+  getTopLevelComponents() {
     return this.rootComponent.next;
   }
+}
 
-})(UrlParams.prototype);
