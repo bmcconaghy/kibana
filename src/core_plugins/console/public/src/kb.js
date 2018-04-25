@@ -2,7 +2,7 @@ const $ = require('jquery');
 const _ = require('lodash');
 const mappings = require('./mappings');
 const Api = require('./kb/api');
-const autocompleteEngine = require('./autocomplete/engine');
+import { SharedComponent, ListComponent } from './autocomplete/engine';
 
 let ACTIVE_API = new Api();
 
@@ -10,7 +10,7 @@ function nonValidIndexType(token) {
   return !(token === '_all' || token[0] !== '_');
 }
 
-class IndexAutocompleteComponent extends autocompleteEngine.ListComponent {
+class IndexAutocompleteComponent extends ListComponent {
   constructor(name, parent, multiValued) {
     super(name, mappings.getIndices, parent, multiValued);
   }
@@ -37,7 +37,7 @@ function TypeGenerator(context) {
   return mappings.getTypes(context.indices);
 }
 
-class TypeAutocompleteComponent extends autocompleteEngine.ListComponent {
+class TypeAutocompleteComponent extends ListComponent {
   constructor(name, parent, multiValued) {
     super(name, TypeGenerator, parent, multiValued);
   }
@@ -66,7 +66,7 @@ function FieldGenerator(context) {
   });
 }
 
-class FieldAutocompleteComponent extends autocompleteEngine.ListComponent {
+class FieldAutocompleteComponent extends ListComponent {
   constructor(name, parent, multiValued)  {
     super(name, FieldGenerator, parent, multiValued);
   }
@@ -91,7 +91,7 @@ class FieldAutocompleteComponent extends autocompleteEngine.ListComponent {
 
 
 
-class IdAutocompleteComponent extends autocompleteEngine.SharedComponent {
+class IdAutocompleteComponent extends SharedComponent {
   constructor(name, parent, multi) {
     super(name, parent);
     this.multiMatch = multi;
@@ -143,11 +143,11 @@ const parametrizedComponentFactories = {
     return new FieldAutocompleteComponent(name, parent, false);
   },
   'nodes': function (name, parent) {
-    return new autocompleteEngine.ListComponent(name, ['_local', '_master', 'data:true', 'data:false',
+    return new ListComponent(name, ['_local', '_master', 'data:true', 'data:false',
       'master:true', 'master:false'], parent);
   },
   'node': function (name, parent) {
-    return new autocompleteEngine.ListComponent(name, [], parent, false);
+    return new ListComponent(name, [], parent, false);
   }
 };
 
