@@ -16,18 +16,18 @@ export default class Api {
       copiedDescription = { ...this.endpoints[endpoint] };
     }
 
-    const url_params_def = {};
+    const urlParamsDef = {};
     _.each(description.patterns || [], function (p) {
       if (p.indexOf('{indices}') >= 0) {
-        url_params_def.ignore_unavailable = '__flag__';
-        url_params_def.allow_no_indices = '__flag__';
-        url_params_def.expand_wildcards = ['open', 'closed'];
+        urlParamsDef.ignore_unavailable = '__flag__';
+        urlParamsDef.allow_no_indices = '__flag__';
+        urlParamsDef  .expand_wildcards = ['open', 'closed'];
       }
     });
 
-    if (url_params_def) {
+    if (urlParamsDef) {
       description.url_params = description.url_params || {};
-      _.defaults(description.url_params, url_params_def);
+      _.defaults(description.url_params, urlParamsDef);
     }
 
     _.extend(copiedDescription, description);
