@@ -14,14 +14,20 @@ export async function putLicense(req, xpackInfo) {
     path: getLicensePath(acknowledge),
     body: req.payload
   };
+  let response;
   try {
-    const response = await callWithRequest(req, 'transport.request', options);
-    const { acknowledged, license_status: licenseStatus } = response;
-    if (acknowledged && licenseStatus === 'valid') {
-      await xpackInfo.refreshNow();
-    }
-    return response;
+    response = await callWithRequest(req, 'transport.request', options);
   } catch (error) {
     return error.body;
   }
+  const { acknowledged, license_status: licenseStatus } = response;
+  if (acknowledged && licenseStatus === 'valid') {
+    try {
+      await xpackInfo.refreshNow();
+    } catch (error) {
+      console.warn('Issue refreshing xpack info after applying license', error);
+    }
+  }
+  return response;
+
 }
