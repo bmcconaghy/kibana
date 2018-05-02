@@ -12,11 +12,11 @@ import * as constants from '../constants';
 const smartResize = require('../smart_resize');
 
 function createInstance($el) {
-  let aceEditor = ace.edit($el[0]);
+  const aceEditor = ace.edit($el[0]);
 
   // we must create a custom class for each instance, so that the prototype
   // can be the unique aceEditor it extends
-  let CustomSenseEditor = function () {
+  const CustomSenseEditor = function () {
   };
   CustomSenseEditor.prototype = {};
 
@@ -32,7 +32,7 @@ function createInstance($el) {
   }
 
   // iterate all of the accessible properties/method, on the prototype and beyond
-  for (let key in aceEditor) {
+  for (const key in aceEditor) {
     switch (typeof aceEditor[key]) {
       case 'function':
         CustomSenseEditor.prototype[key] = _.bindKey(aceEditor, key);
@@ -43,13 +43,13 @@ function createInstance($el) {
     }
   }
 
-  let editor = new CustomSenseEditor();
+  const editor = new CustomSenseEditor();
   editor.__ace = aceEditor;
   return editor;
 }
 
 export default function SenseEditor($el) {
-  let editor = createInstance($el);
+  const editor = createInstance($el);
   let CURRENT_REQ_RANGE = null;
 
   editor.$el = $el;
@@ -62,14 +62,14 @@ export default function SenseEditor($el) {
 
   // dirty check for tokenizer state, uses a lot less cycles
   // than listening for tokenizerUpdate
-  let onceDoneTokenizing = function (func, cancelAlreadyScheduledCalls) {
-    let session = editor.getSession();
+  const onceDoneTokenizing = function (func, cancelAlreadyScheduledCalls) {
+    const session = editor.getSession();
     let timer = false;
-    let checkInterval = 25;
+    const checkInterval = 25;
 
     return function () {
-      let self = this;
-      let args = [].slice.call(arguments, 0);
+      const self = this;
+      const args = [].slice.call(arguments, 0);
 
       if (cancelAlreadyScheduledCalls) {
         timer = clearTimeout(timer);
@@ -108,9 +108,9 @@ export default function SenseEditor($el) {
 
   editor.nextRequestStart = function (rowOrPos) {
     rowOrPos = _.isUndefined(rowOrPos) || rowOrPos == null ? editor.getCursorPosition() : rowOrPos;
-    let session = editor.getSession();
+    const session = editor.getSession();
     let curRow = _.isObject(rowOrPos) ? rowOrPos.row : rowOrPos;
-    let maxLines = session.getLength();
+    const maxLines = session.getLength();
     for (; curRow < maxLines - 1; curRow++) {
       if (editor.parser.isStartRequestRow(curRow, editor)) {
         break;
@@ -146,7 +146,7 @@ export default function SenseEditor($el) {
 
   editor.update = function (data, callback) {
     callback = typeof callback === 'function' ? callback : null;
-    let session = editor.getSession();
+    const session = editor.getSession();
 
     session.setValue(data);
     if (callback) {
@@ -163,11 +163,11 @@ export default function SenseEditor($el) {
   };
 
   editor.replaceRequestRange = function (newRequest, requestRange) {
-    let text = utils.textFromRequest(newRequest);
+    const text = utils.textFromRequest(newRequest);
     if (requestRange) {
-      let pos = editor.getCursorPosition();
+      const pos = editor.getCursorPosition();
       editor.getSession().replace(requestRange, text);
-      let max_row = Math.max(requestRange.start.row + text.split('\n').length - 1, 0);
+      const max_row = Math.max(requestRange.start.row + text.split('\n').length - 1, 0);
       pos.row = Math.min(pos.row, max_row);
       editor.moveCursorToPosition(pos);
       // ACE UPGRADE - check if needed - at the moment the above may trigger a selection.
@@ -180,7 +180,7 @@ export default function SenseEditor($el) {
   };
 
   editor.iterForCurrentLoc = function () {
-    let pos = editor.getCursorPosition();
+    const pos = editor.getCursorPosition();
     return editor.iterForPosition(pos.row, pos.column, editor);
   };
 
@@ -202,8 +202,8 @@ export default function SenseEditor($el) {
       return;
     }
 
-    let reqStart = editor.prevRequestStart(row, editor);
-    let reqEnd = editor.nextRequestEnd(reqStart, editor);
+    const reqStart = editor.prevRequestStart(row, editor);
+    const reqEnd = editor.nextRequestEnd(reqStart, editor);
     cb(new (ace.require('ace/range').Range)(
       reqStart.row, reqStart.column,
       reqEnd.row, reqEnd.column
@@ -218,10 +218,10 @@ export default function SenseEditor($el) {
 
     range = range || editor.getSelectionRange();
 
-    let session = editor.getSession();
+    const session = editor.getSession();
     let startRow = range.start.row;
     let endRow = range.end.row;
-    let maxLine = Math.max(0, session.getLength() - 1);
+    const maxLine = Math.max(0, session.getLength() - 1);
 
     // move start row to the previous request start if in body, o.w. forward
     if (editor.parser.isInBetweenRequestsRow(startRow)) {
@@ -266,21 +266,21 @@ export default function SenseEditor($el) {
       return;
     }
 
-    let endColumn = (session.getLine(endRow) || '').replace(/\s+$/, '').length;
+    const endColumn = (session.getLine(endRow) || '').replace(/\s+$/, '').length;
     cb(new (ace.require('ace/range').Range)(startRow, 0, endRow, endColumn));
   });
 
 
   editor.getRequestInRange = onceDoneTokenizing(function (range, cb) {
-    let request = {
+    const request = {
       method: '',
       data: [],
       url: null,
       range: range
     };
 
-    let pos = range.start;
-    let tokenIter = editor.iterForPosition(pos.row, pos.column, editor);
+    const pos = range.start;
+    const tokenIter = editor.iterForPosition(pos.row, pos.column, editor);
     let t = tokenIter.getCurrentToken();
     if (editor.parser.isEmptyToken(t)) {
       // if the row starts with some spaces, skip them.
@@ -310,11 +310,11 @@ export default function SenseEditor($el) {
         row: bodyStartRow,
         column: 0
       });
-      let bodyRange = new (ace.require('ace/range').Range)(
+      const bodyRange = new (ace.require('ace/range').Range)(
         bodyStartRow, 0,
         dataEndPos.row, dataEndPos.column
       );
-      let data = editor.getSession().getTextRange(bodyRange);
+      const data = editor.getSession().getTextRange(bodyRange);
       request.data.push(data.trim());
       bodyStartRow = dataEndPos.row + 1;
     }
@@ -338,8 +338,8 @@ export default function SenseEditor($el) {
         return;
       }
 
-      let startRow = requestsRange.start.row;
-      let endRow = requestsRange.end.row;
+      const startRow = requestsRange.start.row;
+      const endRow = requestsRange.end.row;
 
       // move to the next request start (during the second iterations this may not be exactly on a request
       let currentRow = startRow;
@@ -402,15 +402,15 @@ export default function SenseEditor($el) {
   });
 
   editor.moveToPreviousRequestEdge = onceDoneTokenizing(function () {
-    let pos = editor.getCursorPosition();
+    const pos = editor.getCursorPosition();
     for (pos.row--; pos.row > 0 && !editor.parser.isRequestEdge(pos.row); pos.row--) {
     }
     editor.moveCursorTo(pos.row, 0);
   });
 
   editor.moveToNextRequestEdge = onceDoneTokenizing(function (moveOnlyIfNotOnEdge) {
-    let pos = editor.getCursorPosition();
-    let maxRow = editor.getSession().getLength();
+    const pos = editor.getCursorPosition();
+    const maxRow = editor.getSession().getLength();
     if (!moveOnlyIfNotOnEdge) {
       pos.row++;
     }
@@ -421,11 +421,11 @@ export default function SenseEditor($el) {
 
   editor.nextRequestEnd = function (pos) {
     pos = pos || editor.getCursorPosition();
-    let session = editor.getSession();
+    const session = editor.getSession();
     let curRow = pos.row;
-    let maxLines = session.getLength();
+    const maxLines = session.getLength();
     for (; curRow < maxLines - 1; curRow++) {
-      let curRowMode = editor.parser.getRowParseMode(curRow, editor);
+      const curRowMode = editor.parser.getRowParseMode(curRow, editor);
       if ((curRowMode & editor.parser.MODE.REQUEST_END) > 0) {
         break;
       }
@@ -434,7 +434,7 @@ export default function SenseEditor($el) {
       }
     }
 
-    let column = (session.getLine(curRow) || '').replace(/\s+$/, '').length;
+    const column = (session.getLine(curRow) || '').replace(/\s+$/, '').length;
 
     return {
       row: curRow,
@@ -444,11 +444,11 @@ export default function SenseEditor($el) {
 
   editor.nextDataDocEnd = function (pos) {
     pos = pos || editor.getCursorPosition();
-    let session = editor.getSession();
+    const session = editor.getSession();
     let curRow = pos.row;
-    let maxLines = session.getLength();
+    const maxLines = session.getLength();
     for (; curRow < maxLines - 1; curRow++) {
-      let curRowMode = editor.parser.getRowParseMode(curRow, editor);
+      const curRowMode = editor.parser.getRowParseMode(curRow, editor);
       if ((curRowMode & RowParser.REQUEST_END) > 0) {
         break;
       }
@@ -460,7 +460,7 @@ export default function SenseEditor($el) {
       }
     }
 
-    let column = (session.getLine(curRow) || '').length;
+    const column = (session.getLine(curRow) || '').length;
 
     return {
       row: curRow,
@@ -469,7 +469,7 @@ export default function SenseEditor($el) {
   };
 
   // overwrite the actual aceEditor's onPaste method
-  let origOnPaste = editor.__ace.onPaste;
+  const origOnPaste = editor.__ace.onPaste;
   editor.__ace.onPaste = function (text) {
     if (text && curl.detectCURL(text)) {
       editor.handleCURLPaste(text);
@@ -479,13 +479,13 @@ export default function SenseEditor($el) {
   };
 
   editor.handleCURLPaste = function (text) {
-    let curlInput = curl.parseCURL(text);
+    const curlInput = curl.parseCURL(text);
 
     editor.insert(curlInput);
   };
 
   editor.highlightCurrentRequestsAndUpdateActionBar = onceDoneTokenizing(function () {
-    let session = editor.getSession();
+    const session = editor.getSession();
     editor.getEngulfingRequestsRange(function (new_current_req_range) {
       if (new_current_req_range == null && CURRENT_REQ_RANGE == null) {
         return;
@@ -495,7 +495,7 @@ export default function SenseEditor($el) {
         new_current_req_range.end.row == CURRENT_REQ_RANGE.end.row
       ) {
         // same request, now see if we are on the first line and update the action bar
-        let cursorRow = editor.getCursorPosition().row;
+        const cursorRow = editor.getCursorPosition().row;
         if (cursorRow == CURRENT_REQ_RANGE.start.row) {
           editor.updateActionsBar();
         }
@@ -513,7 +513,22 @@ export default function SenseEditor($el) {
       editor.updateActionsBar();
     });
   }, true);
+  editor.getRequestDocumentation = function (range, cb) {
+    if (_.isUndefined(cb)) {
+      cb = range;
+      range = null;
+    }
 
+    if (_.isUndefined(cb)) {
+      cb = $.noop;
+    }
+
+    editor.getRequestsInRange(range, true, function (requests) {
+      requests.forEach((request) => {
+        console.log(request);
+      });
+    });
+  };
   editor.getRequestsAsCURL = function (range, cb) {
     if (_.isUndefined(cb)) {
       cb = range;
@@ -526,7 +541,7 @@ export default function SenseEditor($el) {
 
     editor.getRequestsInRange(range, true, function (requests) {
 
-      let result = _.map(requests, function requestToCurl(req) {
+      const result = _.map(requests, function requestToCurl(req) {
 
         if (typeof req === 'string') {
           // no request block
@@ -539,12 +554,12 @@ export default function SenseEditor($el) {
           es_data = req.data;
 
         const elasticsearchBaseUrl = chrome.getInjected('elasticsearchUrl');
-        let url = es.constructESUrl(elasticsearchBaseUrl, es_path);
+        const url = es.constructESUrl(elasticsearchBaseUrl, es_path);
 
         let ret = 'curl -X' + es_method + ' "' + url + '"';
         if (es_data && es_data.length) {
           ret += ' -H \'Content-Type: application/json\' -d\'\n';
-          let data_as_string = utils.collapseLiteralStrings(es_data.join('\n'));
+          const data_as_string = utils.collapseLiteralStrings(es_data.join('\n'));
           // since Sense doesn't allow single quote json string any single qoute is within a string.
           ret += data_as_string.replace(/'/g, '\\"');
           if (es_data.length > 1) {
@@ -568,7 +583,7 @@ export default function SenseEditor($el) {
   });
 
   editor.updateActionsBar = (function () {
-    let set = function (top) {
+    const set = function (top) {
       if (top == null) {
         editor.$actions.css('visibility', 'hidden');
       }
@@ -580,7 +595,7 @@ export default function SenseEditor($el) {
       }
     };
 
-    let hide = function () {
+    const hide = function () {
       set();
     };
 
@@ -592,11 +607,11 @@ export default function SenseEditor($el) {
         // elements are positioned relative to the editor's container
         // pageY is relative to page, so subtract the offset
         // from pageY to get the new top value
-        let offsetFromPage = editor.$el.offset().top;
+        const offsetFromPage = editor.$el.offset().top;
         let startRow = CURRENT_REQ_RANGE.start.row;
-        let startColumn = CURRENT_REQ_RANGE.start.column;
-        let session = editor.session;
-        let firstLine = session.getLine(startRow);
+        const startColumn = CURRENT_REQ_RANGE.start.column;
+        const session = editor.session;
+        const firstLine = session.getLine(startRow);
 
         if (firstLine.length > session.getWrapLimit() - 5) {
           // overlap first row
@@ -609,13 +624,13 @@ export default function SenseEditor($el) {
         }
 
 
-        let topOfReq = editor.renderer.textToScreenCoordinates(startRow, startColumn).pageY - offsetFromPage;
+        const topOfReq = editor.renderer.textToScreenCoordinates(startRow, startColumn).pageY - offsetFromPage;
 
         if (topOfReq >= 0) {
           return set(topOfReq);
         }
 
-        let bottomOfReq = editor.renderer.textToScreenCoordinates(
+        const bottomOfReq = editor.renderer.textToScreenCoordinates(
           CURRENT_REQ_RANGE.end.row,
           CURRENT_REQ_RANGE.end.column
         ).pageY - offsetFromPage;
