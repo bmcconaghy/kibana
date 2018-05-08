@@ -11,7 +11,7 @@ import {
 } from '../../src/constants';
 let output;
 
-const token_iterator = ace.require('ace/token_iterator');
+const token_iterator = ace.acequire('ace/token_iterator');
 const { module, asyncTest, deepEqual, start } = window.QUnit;
 
 module('Output Tokenization', {

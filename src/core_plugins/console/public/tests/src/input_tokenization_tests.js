@@ -4,7 +4,7 @@ import { initializeInput } from '../../src/input';
 let input;
 import * as constants from '../../src/constants';
 
-const token_iterator = ace.require('ace/token_iterator');
+const token_iterator = ace.acequire('ace/token_iterator');
 const { module, asyncTest, deepEqual, start } = window.QUnit;
 
 
