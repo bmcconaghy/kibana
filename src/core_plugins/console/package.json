@@ -1,7 +1,8 @@
 {
   "author": "Boaz Leskes <boaz@elastic.co>",
   "contributors": [
-    "Spencer Alger <spencer.alger@elastic.co>"
+    "Spencer Alger <spencer.alger@elastic.co>",
+    "Bill McConaghy <bill.mcconaghy@elastic.co>"
   ],
   "name": "console",
   "version": "kibana"
