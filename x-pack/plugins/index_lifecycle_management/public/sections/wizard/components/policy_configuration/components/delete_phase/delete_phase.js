@@ -60,30 +60,23 @@ export class DeletePhase extends PureComponent {
     } = this.props;
 
     return (
-      <EuiAccordion
-        id="delete"
-        buttonContent={
-          <EuiFlexGroup alignItems="center">
-            <EuiFlexItem grow={false}>
-              <div
-                style={{
-                  background: '#333',
-                  borderRadius: 4,
-                  height: 64,
-                  width: 64,
-                  lineHeight: '64px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}
-              >
-                <EuiIcon type="indexClose" size="xl" />
-              </div>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiTitle size="s">
-                <h4>Delete phase</h4>
-              </EuiTitle>
-              <EuiTextColor color="subdued">
+      <EuiDescribedFormGroup
+        title={
+          <div>
+            <span className="eui-displayInlineBlock eui-alignMiddle">Delete phase</span>{' '}
+            {phaseData[PHASE_ENABLED] ? (
+              <EuiBetaBadge label="Enabled" iconType="check" className="eui-alignMiddle" />
+            ) : null}
+          </div>
+        }
+        titleSize="s"
+        description={
+          <Fragment>
+            <p>
+              When your data is no longer useful. Define how long you want to retain it.
+            </p>
+            {isShowingErrors ? (
+              <EuiTextColor color="danger">
                 <EuiText>
                   <p>
                     This phase is optional. Your data is no longer useful. Define how long you want to retain it.

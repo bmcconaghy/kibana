@@ -78,30 +78,24 @@ export class ColdPhase extends PureComponent {
     } = this.props;
 
     return (
-      <EuiAccordion
-        id="cold"
-        buttonContent={
-          <EuiFlexGroup alignItems="center">
-            <EuiFlexItem grow={false}>
-              <div
-                style={{
-                  background: '#0079a5',
-                  borderRadius: 4,
-                  height: 64,
-                  width: 64,
-                  lineHeight: '64px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}
-              >
-                <EuiIcon type="sortDown" size="xl" />
-              </div>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiTitle size="s">
-                <h4>Cold phase</h4>
-              </EuiTitle>
-              <EuiTextColor color="subdued">
+      <EuiDescribedFormGroup
+        title={
+          <div>
+            <span className="eui-displayInlineBlock eui-alignMiddle">Cold phase</span>{' '}
+            {phaseData[PHASE_ENABLED] ? (
+              <EuiBetaBadge label="Enabled" iconType="check" className="eui-alignMiddle" />
+            ) : null}
+          </div>
+        }
+        titleSize="s"
+        description={
+          <Fragment>
+            <p>
+              Your read-only index is queried less frequently. Use this phase
+              when the index no longer needs to be on the most performant hardware.
+            </p>
+            {isShowingErrors ? (
+              <EuiTextColor color="danger">
                 <EuiText>
                   <p>
                     This phase is optional. Your read-only index is queried less frequently.

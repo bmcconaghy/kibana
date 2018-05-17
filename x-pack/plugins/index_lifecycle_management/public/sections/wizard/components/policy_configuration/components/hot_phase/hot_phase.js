@@ -66,30 +66,21 @@ export class HotPhase extends PureComponent {
     } = this.props;
 
     return (
-      <EuiAccordion
-        id="hot"
-        buttonContent={
-          <EuiFlexGroup alignItems="center">
-            <EuiFlexItem grow={false}>
-              <div
-                style={{
-                  background: '#A30000',
-                  borderRadius: 4,
-                  height: 64,
-                  width: 64,
-                  lineHeight: '64px',
-                  textAlign: 'center',
-                  color: 'white'
-                }}
-              >
-                <EuiIcon type="indexFlush" size="xl" />
-              </div>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiTitle size="s">
-                <h4>Hot phase</h4>
-              </EuiTitle>
-              <EuiTextColor color="subdued">
+      <EuiDescribedFormGroup
+        title={
+          <div>
+            <span className="eui-displayInlineBlock eui-alignMiddle">Hot phase</span>{' '}
+            <EuiBetaBadge label="Enabled" iconType="check" className="eui-alignMiddle" />
+          </div>
+        }
+        titleSize="s"
+        description={
+          <Fragment>
+            <p>
+              This phase is required. Your index is being queried and in active writing mode.
+            </p>
+            {isShowingErrors ? (
+              <EuiTextColor color="danger">
                 <EuiText>
                   <p>This phase is required. Your index is being queried and in active writing mode.</p>
                 </EuiText>

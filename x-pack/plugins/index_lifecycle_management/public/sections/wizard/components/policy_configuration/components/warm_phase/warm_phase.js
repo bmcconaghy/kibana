@@ -110,30 +110,25 @@ export class WarmPhase extends Component {
     } = this.props;
 
     return (
-      <EuiAccordion
-        id="warm"
-        buttonContent={
-          <EuiFlexGroup alignItems="center">
-            <EuiFlexItem grow={false}>
-              <div
-                style={{
-                  background: '#DD0A73',
-                  borderRadius: 4,
-                  height: 64,
-                  width: 64,
-                  lineHeight: '64px',
-                  textAlign: 'center',
-                  color: 'white',
-                }}
-              >
-                <EuiIcon type="sortDown" size="xl" />
-              </div>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiTitle size="s">
-                <h4>Warm phase</h4>
-              </EuiTitle>
-              <EuiTextColor color="subdued">
+      <EuiDescribedFormGroup
+        title={
+          <div>
+            <span className="eui-displayInlineBlock eui-alignMiddle">Warm phase</span>{' '}
+            {phaseData[PHASE_ENABLED] ? (
+              <EuiBetaBadge label="Enabled" iconType="check" className="eui-alignMiddle" />
+            ) : null}
+          </div>
+        }
+        titleSize="s"
+        description={
+          <Fragment>
+            <p>
+              Your index is frequently queried, but is read-only.
+              Use this phase to optimize for search.Your index is being queried
+              and in active writing mode.
+            </p>
+            {isShowingErrors ? (
+              <EuiTextColor color="danger">
                 <EuiText>
                   <p>
                     This phase is optional. Your index is frequently queried,
