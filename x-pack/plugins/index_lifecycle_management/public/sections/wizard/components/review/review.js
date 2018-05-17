@@ -78,7 +78,7 @@ export class Review extends Component {
         this.props.selectedPolicyName
       );
       this.setState({ affectedIndices, isLoadingAffectedIndices: false });
-    }, 500);
+    }, 1000);
   }
 
   async componentWillMount() {
@@ -128,9 +128,13 @@ export class Review extends Component {
       lifecycle,
       bootstrapEnabled,
       aliasName,
+      policies,
     } = this.props;
 
     const { affectedIndices, isLoadingAffectedIndices, isShowingErrors } = this.state;
+
+    const showSaveChangedMessage = (originalPolicyName && !saveAsNewPolicy)
+      || (saveAsNewPolicy && !!policies.find(policy => policy.name === selectedPolicyName));
 
     return (
       <div className="euiAnimateContentLoad">
@@ -256,9 +260,86 @@ export class Review extends Component {
             <EuiHorizontalRule className="ilmHrule" />
           </Fragment>
         ) : null}
-        <EuiButtonEmpty iconSide="left" iconType="sortLeft" onClick={back}>
-          Back
-        </EuiButtonEmpty>
+
+        <EuiSpacer />
+        <Fragment>
+          {originalPolicyName ? (
+            <Fragment>
+              { showSaveChangedMessage ? (
+                <Fragment>
+                  <EuiTitle size="s">
+                    <h3>Save changes to {selectedPolicyName} policy</h3>
+                  </EuiTitle>
+                  <EuiText>
+                    <p>
+                      <strong>You are editing an existing policy</strong>. This means that any saves you make
+                  will also change any index templates this policy is attached to. You can instead save
+                  these changes and make it a brand new policy that only changes the template you
+                  selected.
+                    </p>
+                  </EuiText>
+                  <EuiSpacer />
+                </Fragment>
+              ) : null }
+              <EuiFormRow label="Policy options" style={{ maxWidth: '100%' }}>
+                <EuiSwitch
+                  style={{ maxWidth: '100%' }}
+                  checked={saveAsNewPolicy}
+                  onChange={async e => {
+                    await setSaveAsNewPolicy(e.target.checked);
+                    validate();
+                  }}
+                  label={
+                    <span>
+                      Save this <strong>as a new policy</strong>
+                    </span>
+                  }
+                />
+              </EuiFormRow>
+            </Fragment>
+          ) : null}
+          {saveAsNewPolicy ? (
+            <Fragment>
+              <EuiTitle size="s">
+                <h3>Save your work</h3>
+              </EuiTitle>
+              <EuiSpacer />
+              <ErrableFormRow
+                label="Policy name"
+                errorKey={STRUCTURE_POLICY_NAME}
+                isShowingErrors={isShowingErrors}
+                errors={errors}
+              >
+                <EuiFieldText
+                  value={selectedPolicyName}
+                  onChange={async e => {
+                    await setSelectedPolicyName(e.target.value);
+                    validate();
+                  }}
+                />
+              </ErrableFormRow>
+            </Fragment>
+          ) : null}
+        </Fragment>
+
+        <EuiFlexGroup>
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty iconSide="left" iconType="sortLeft" onClick={back}>
+              Back
+            </EuiButtonEmpty>
+
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton
+              fill
+              color="secondary"
+              iconType="check"
+              onClick={() => done(lifecycle)}
+            >
+              Looks good, save changes
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
         &nbsp;&nbsp;
         <EuiButton
           fill
