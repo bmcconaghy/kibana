@@ -36,23 +36,6 @@ let LAST_EVALUATED_TOKEN = null;
 
 export default function (editor) {
 
-  function isSeparatorToken(token) {
-    switch ((token || {}).type) {
-      case 'url.slash':
-      case 'url.comma':
-      case 'url.questionmark':
-      case 'paren.lparen':
-      case 'paren.rparen':
-      case 'punctuation.colon':
-      case 'punctuation.comma':
-      case 'whitespace':
-        return true;
-      default:
-        // standing on white space, quotes or another punctuation - no replacing
-        return false;
-    }
-  }
-
   function isUrlPathToken(token) {
     switch ((token || {}).type) {
       case 'url.slash':
@@ -74,23 +57,6 @@ export default function (editor) {
         return true;
       default:
         return false;
-    }
-  }
-
-  function getAutoCompleteValueFromToken(token) {
-    switch ((token || {}).type) {
-      case 'variable':
-      case 'string':
-      case 'text':
-      case 'constant.numeric':
-      case 'constant.language.boolean':
-        return token.value.replace(/"/g, '');
-      case 'method':
-      case 'url.part':
-        return token.value;
-      default:
-        // standing on white space, quotes or another punctuation - no replacing
-        return '';
     }
   }
 
@@ -975,20 +941,13 @@ export default function (editor) {
 
   addChangeListener();
 
-  // Hook into Ace
-
-  // disable standard context based autocompletion.
-  ace.define('ace/autocomplete/text_completer', ['require', 'exports', 'module'], function (require, exports) {
-    exports.getCompletions = function (editor, session, pos, prefix, callback) {
-      callback(null, []);
-    };
-  });
-
   const langTools = ace.acequire('ace/ext/language_tools');
-  const aceUtils = ace.acequire('ace/autocomplete/util');
-  const aceAutoComplete = ace.acequire('ace/autocomplete');
+  const splitRegex = /[a-zA-Z_0-9\.\$\-\u00A2-\uFFFF]/; // adds support for dot character
 
   langTools.setCompleters([{
+    identifierRegexps: [
+      splitRegex
+    ],
     getCompletions: getCompletions
   }]);
 
@@ -996,48 +955,6 @@ export default function (editor) {
     enableBasicAutocompletion: true
   });
   editor.$blockScrolling = Infinity;
-  // Ace doesn't care about tokenization when calculating prefix. It will thus stop on . in keys names.
-  // we patch this behavior.
-  // CHECK ON ACE UPDATE
-  const aceAutoCompleteInstance = new aceAutoComplete.Autocomplete();
-  aceAutoCompleteInstance.autoInsert = false;
-  aceAutoCompleteInstance.gatherCompletions = function (aceEditor, callback) {
-    const session = aceEditor.getSession();
-    const pos = aceEditor.getCursorPosition();
-    let prefix = '';
-    // change starts here
-    const token = session.getTokenAt(pos.row, pos.column);
-    this.base = _.clone(pos);
-    this.base.detach = () => {};
-    if (!editor.parser.isEmptyToken(token) && !isSeparatorToken(token)) {
-      if (token.value.indexOf('"') === 0) {
-        this.base.column = token.start + 1;
-      }
-      else {
-        this.base.column = token.start;
-      }
-
-      prefix = getAutoCompleteValueFromToken(token);
-    }
-
-    let matches = [];
-    aceUtils.parForEach(aceEditor.completers, function (completer, next) {
-      completer.getCompletions(aceEditor, session, pos, prefix, function (err, results) {
-        if (!err) {
-          matches = matches.concat(results);
-        }
-        next();
-      });
-    }, function () {
-      callback(null, {
-        prefix: prefix,
-        matches: matches
-      });
-    });
-    return true;
-  };
-
-  editor.__ace.completer = aceAutoCompleteInstance;
 
   return {
     _test: {
