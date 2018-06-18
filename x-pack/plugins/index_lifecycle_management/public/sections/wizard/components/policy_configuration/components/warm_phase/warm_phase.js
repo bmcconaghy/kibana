@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React, { Fragment, Component } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -38,7 +38,7 @@ import {
 } from '../../../../../../store/constants';
 import { ErrableFormRow } from '../../../../form_errors';
 
-export class WarmPhase extends Component {
+export class WarmPhase extends PureComponent {
   static propTypes = {
     setPhaseData: PropTypes.func.isRequired,
     validate: PropTypes.func.isRequired,
@@ -82,13 +82,6 @@ export class WarmPhase extends Component {
 
     nodeOptions: PropTypes.array.isRequired,
   };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      applyOnRollover: false,
-    };
-  }
 
   componentWillMount() {
     this.props.fetchNodes();
@@ -193,18 +186,18 @@ export class WarmPhase extends Component {
                       setPhaseData(PHASE_ROLLOVER_AFTER, e.target.value);
                       validate();
                     }}
-                  />
-                </ErrableFormRow>
-              </EuiFlexItem>
-              <EuiFlexItem style={{ maxWidth: 188 }}>
-                <EuiFormRow hasEmptyLabelSpace>
-                  <EuiSelect
-                    value={phaseData[PHASE_ROLLOVER_AFTER_UNITS]}
+                  >
+                    Remove warm phase
+                  </EuiButton>
+                </div>
+              </EuiFormRow>
+              {hotPhaseRolloverEnabled ? (
+                <EuiFormRow label="Rollover configuration">
+                  <EuiSwitch
+                    label="Move to warm phase on rollover"
+                    checked={phaseData[PHASE_ROLLOVER_ENABLED]}
                     onChange={async e => {
-                      await setPhaseData(
-                        PHASE_ROLLOVER_AFTER_UNITS,
-                        e.target.value
-                      );
+                      await setPhaseData(PHASE_ROLLOVER_ENABLED, e.target.checked);
                       validate();
                     }}
                     options={[
@@ -213,9 +206,45 @@ export class WarmPhase extends Component {
                     ]}
                   />
                 </EuiFormRow>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          ) : null}
+              ) : null}
+              {!phaseData[PHASE_ROLLOVER_ENABLED] ? (
+                <EuiFlexGroup>
+                  <EuiFlexItem style={{ maxWidth: 188 }}>
+                    <ErrableFormRow
+                      label="Move to warm phase after"
+                      errorKey={PHASE_ROLLOVER_AFTER}
+                      isShowingErrors={isShowingErrors}
+                      errors={errors}
+                    >
+                      <EuiFieldNumber
+                        value={phaseData[PHASE_ROLLOVER_AFTER]}
+                        onChange={async e => {
+                          setPhaseData(PHASE_ROLLOVER_AFTER, e.target.value);
+                          validate();
+                        }}
+                      />
+                    </ErrableFormRow>
+                  </EuiFlexItem>
+                  <EuiFlexItem style={{ maxWidth: 188 }}>
+                    <EuiFormRow hasEmptyLabelSpace>
+                      <EuiSelect
+                        value={phaseData[PHASE_ROLLOVER_AFTER_UNITS]}
+                        onChange={async e => {
+                          await setPhaseData(
+                            PHASE_ROLLOVER_AFTER_UNITS,
+                            e.target.value
+                          );
+                          validate();
+                        }}
+                        options={[
+                          { value: 'd', text: 'days' },
+                          { value: 'h', text: 'hours' },
+                        ]}
+                      />
+                    </EuiFormRow>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              ) : null}
 
           <EuiSpacer />
 
