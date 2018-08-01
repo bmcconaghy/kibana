@@ -17,9 +17,9 @@ import {
   EuiHorizontalRule,
   EuiCallOut,
   EuiButtonEmpty,
-  EuiIconTip,
-  EuiLink,
+  EuiDescribedFormGroup,
 } from '@elastic/eui';
+import { LearnMoreLink } from '../../../../../../components/learn_more_link';
 import {
   STRUCTURE_NODE_ATTRS,
   STRUCTURE_PRIMARY_NODES,
@@ -123,13 +123,44 @@ export class Configuration extends Component {
             </EuiButtonEmpty>
           ) : null}
         >
-          <EuiSelect
-            value={selectedNodeAttrs}
-            onChange={async e => {
-              await setSelectedNodeAttrs(e.target.value);
-              validate();
-            }}
-            options={nodeOptions}
+          <ErrableFormRow
+            label="Where do you want your hot indices to live?"
+            errorKey={STRUCTURE_NODE_ATTRS}
+            isShowingErrors={isShowingErrors}
+            errors={errors}
+            helpText={selectedNodeAttrs ? (
+              <EuiButtonEmpty
+                flush="left"
+                iconType="eye"
+                onClick={() =>
+                  this.setState({ isShowingNodeDetailsFlyout: true })
+                }
+              >
+                View a list of nodes attached to this configuration
+              </EuiButtonEmpty>
+            ) : null}
+          >
+            <EuiSelect
+              value={selectedNodeAttrs}
+              onChange={async e => {
+                await setSelectedNodeAttrs(e.target.value);
+                validate();
+              }}
+              options={nodeOptions}
+            />
+          </ErrableFormRow>
+          <EuiCallOut
+            color="warning"
+            size="s"
+            title={
+              <p>
+                The best way to determine how many shards you need is to benchmark
+                using realistic data and queries on your hardware.{' '}
+                <LearnMoreLink
+                  href="https://www.elastic.co/webinars/using-rally-to-get-your-elasticsearch-cluster-size-right"
+                />
+              </p>
+            }
           />
         </ErrableFormRow>
         <EuiCallOut title="Tip">

@@ -6,7 +6,6 @@
 
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -21,7 +20,9 @@ import {
   EuiSelect,
   EuiSwitch,
   EuiButtonEmpty,
-  EuiLink,
+  EuiDescribedFormGroup,
+  EuiBetaBadge,
+  EuiButton,
 } from '@elastic/eui';
 import {
   PHASE_ENABLED,
@@ -37,6 +38,7 @@ import {
   PHASE_SHRINK_ENABLED,
 } from '../../../../../../store/constants';
 import { ErrableFormRow } from '../../../../form_errors';
+import { LearnMoreLink } from '../../../../../../components/learn_more_link';
 
 export class WarmPhase extends PureComponent {
   static propTypes = {
@@ -382,29 +384,83 @@ export class WarmPhase extends PureComponent {
             </Fragment>
           ) : null}
 
-          <EuiTitle size="s">
-            <p>Force merge</p>
-          </EuiTitle>
-          <EuiTitle size="xs">
-            <EuiTextColor color="subdued">
-              Reduce the number of segments in your shard by and merging smaller
-              files and clearing deleted ones.{' '}
-              <EuiLink href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-forcemerge.html">
-                Learn More
-              </EuiLink>
-            </EuiTextColor>
-          </EuiTitle>
+              <EuiTitle size="s">
+                <p>Shrink</p>
+              </EuiTitle>
+              <EuiTitle size="xs">
+                <EuiTextColor color="subdued">
+                  Shrink the index into a new index with fewer primary shards.{' '}
+                  <LearnMoreLink
+                    docPath="indices-shrink-index.html#indices-shrink-index"
+                  />
+                </EuiTextColor>
+              </EuiTitle>
+
+              <EuiSpacer />
+
+              <EuiSwitch
+                checked={phaseData[PHASE_SHRINK_ENABLED]}
+                onChange={async e => {
+                  await setPhaseData(PHASE_SHRINK_ENABLED, e.target.checked);
+                  validate();
+                }}
+                label="Shrink index"
+              />
+
+              <EuiSpacer size="m" />
+
+              {phaseData[PHASE_SHRINK_ENABLED] ? (
+                <Fragment>
+                  <EuiFlexGroup>
+                    <EuiFlexItem grow={false}>
+                      <ErrableFormRow
+                        label="Number of primary shards"
+                        errorKey={PHASE_PRIMARY_SHARD_COUNT}
+                        isShowingErrors={isShowingErrors}
+                        errors={errors}
+                      >
+                        <EuiFieldNumber
+                          value={phaseData[PHASE_PRIMARY_SHARD_COUNT]}
+                          onChange={async e => {
+                            await setPhaseData(
+                              PHASE_PRIMARY_SHARD_COUNT,
+                              e.target.value
+                            );
+                            validate();
+                          }}
+                        />
+                      </ErrableFormRow>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiFormRow hasEmptyLabelSpace>
+                        <EuiButtonEmpty
+                          flush="left"
+                          onClick={async () => {
+                            await setPhaseData(
+                              PHASE_PRIMARY_SHARD_COUNT,
+                              hotPhasePrimaryShardCount
+                            );
+                            validate();
+                          }}
+                        >
+                          Set to same as hot phase
+                        </EuiButtonEmpty>
+                      </EuiFormRow>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
 
           <EuiSpacer size="m" />
 
-          <EuiSwitch
-            label="Force merge data"
-            checked={phaseData[PHASE_FORCE_MERGE_ENABLED]}
-            onChange={async e => {
-              await setPhaseData(PHASE_FORCE_MERGE_ENABLED, e.target.checked);
-              validate();
-            }}
-          />
+              <EuiTitle size="s">
+                <p>Force merge</p>
+              </EuiTitle>
+              <EuiTitle size="xs">
+                <EuiTextColor color="subdued">
+                  Reduce the number of segments in your shard by merging smaller
+                  files and clearing deleted ones.{' '}
+                  <LearnMoreLink docPath="indices-forcemerge.html" />
+                </EuiTextColor>
+              </EuiTitle>
 
           <EuiSpacer />
 

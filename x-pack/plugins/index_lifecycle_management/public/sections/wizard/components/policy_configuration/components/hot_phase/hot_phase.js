@@ -19,8 +19,11 @@ import {
   EuiFieldNumber,
   EuiSelect,
   EuiSwitch,
-  EuiLink
+  EuiFormRow,
+  EuiDescribedFormGroup,
+  EuiBetaBadge,
 } from '@elastic/eui';
+import { LearnMoreLink } from '../../../../../../components/learn_more_link';
 import {
   PHASE_ROLLOVER_ALIAS,
   PHASE_ROLLOVER_MAX_AGE,
@@ -98,11 +101,17 @@ export class HotPhase extends PureComponent {
         buttonClassName="ilmAccordion__button"
         buttonContentClassName="ilmAccordion__buttonContent"
       >
-        <div style={{ padding: '16px 16px 16px 40px', marginLeft: '-16px' }}>
-          <EuiTitle size="s">
-            <p>Rollover condition</p>
-          </EuiTitle>
-          <EuiSpacer />
+        <EuiFormRow
+          hasEmptyLabelSpace
+          helpText={
+            <p>
+              If true, rollover the index when it gets too big or too old. The alias switches to the new index.{' '}
+              <LearnMoreLink
+                docPath="ndices-rollover-index.html"
+              />
+            </p>
+          }
+        >
           <EuiSwitch
             checked={phaseData[PHASE_ROLLOVER_ENABLED]}
             onChange={async e => {
