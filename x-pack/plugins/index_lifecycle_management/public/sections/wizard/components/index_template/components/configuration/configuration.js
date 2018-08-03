@@ -141,7 +141,7 @@ export class Configuration extends Component {
             ) : null}
           >
             <EuiSelect
-              value={selectedNodeAttrs}
+              value={selectedNodeAttrs || ' '}
               onChange={async e => {
                 await setSelectedNodeAttrs(e.target.value);
                 validate();
@@ -162,57 +162,49 @@ export class Configuration extends Component {
               </p>
             }
           />
-        </ErrableFormRow>
-        <EuiCallOut title="Tip">
-          <p>
-            The best way to determine how many shards you need is to benchmark
-            using realistic data and queries on your hardware.{' '}
-            <EuiLink href="https://www.elastic.co/webinars/using-rally-to-get-your-elasticsearch-cluster-size-right">
-              Learn more.
-            </EuiLink>
-          </p>
-        </EuiCallOut>
-        <EuiSpacer />
-        <EuiFlexGroup>
-          <EuiFlexItem style={{ maxWidth: 188 }}>
-            <ErrableFormRow
-              label="Primary shards"
-              errorKey={STRUCTURE_PRIMARY_NODES}
-              isShowingErrors={isShowingErrors}
-              errors={errors}
-            >
-              <EuiFieldNumber
-                onChange={async e => {
-                  await setSelectedPrimaryShardCount(e.target.value);
-                  validate();
-                }}
-                value={selectedPrimaryShardCount}
-              />
-            </ErrableFormRow>
-          </EuiFlexItem>
-          <EuiFlexItem style={{ maxWidth: 188 }}>
-            <ErrableFormRow
-              label="Replicas"
-              errorKey={STRUCTURE_REPLICAS}
-              isShowingErrors={isShowingErrors}
-              errors={errors}
-            >
-              <EuiFieldNumber
-                onChange={async e => {
-                  await setSelectedReplicaCount(e.target.value);
-                  validate();
-                }}
-                value={selectedReplicaCount}
-              />
-            </ErrableFormRow>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        {this.state.isShowingNodeDetailsFlyout ? (
-          <NodeAttrsDetails
-            selectedNodeAttrs={selectedNodeAttrs}
-            close={() => this.setState({ isShowingNodeDetailsFlyout: false })}
-          />
-        ) : null}
+          <EuiSpacer />
+          <EuiFlexGroup>
+            <EuiFlexItem style={{ maxWidth: 188 }}>
+              <ErrableFormRow
+                label="Primary shards"
+                errorKey={STRUCTURE_PRIMARY_NODES}
+                isShowingErrors={isShowingErrors}
+                errors={errors}
+              >
+                <EuiFieldNumber
+                  onChange={async e => {
+                    await setSelectedPrimaryShardCount(e.target.value);
+                    validate();
+                  }}
+                  value={selectedPrimaryShardCount}
+                  min={1}
+                />
+              </ErrableFormRow>
+            </EuiFlexItem>
+            <EuiFlexItem style={{ maxWidth: 188 }}>
+              <ErrableFormRow
+                label="Replicas"
+                errorKey={STRUCTURE_REPLICAS}
+                isShowingErrors={isShowingErrors}
+                errors={errors}
+              >
+                <EuiFieldNumber
+                  onChange={async e => {
+                    await setSelectedReplicaCount(e.target.value);
+                    validate();
+                  }}
+                  value={selectedReplicaCount}
+                  min={0}
+                />
+              </ErrableFormRow>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          {this.state.isShowingNodeDetailsFlyout ? (
+            <NodeAttrsDetails
+              selectedNodeAttrs={selectedNodeAttrs}
+              close={() => this.setState({ isShowingNodeDetailsFlyout: false })}
+            />
+          ) : null}
 
         {primaryNodeErrors}
       </div>

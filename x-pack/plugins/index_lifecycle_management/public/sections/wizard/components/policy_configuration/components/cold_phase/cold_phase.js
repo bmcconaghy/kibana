@@ -159,7 +159,40 @@ export class ColdPhase extends PureComponent {
             </EuiFlexItem>
           </EuiFlexGroup>
 
-          <EuiSpacer />
+            <EuiSpacer size="m" />
+            <EuiFlexGroup>
+              <EuiFlexItem style={{ maxWidth: 188 }}>
+                <ErrableFormRow
+                  label="Move to cold phase after"
+                  errorKey={PHASE_ROLLOVER_AFTER}
+                  isShowingErrors={isShowingErrors}
+                  errors={errors}
+                >
+                  <EuiFieldNumber
+                    value={phaseData[PHASE_ROLLOVER_AFTER]}
+                    onChange={async e => {
+                      setPhaseData(PHASE_ROLLOVER_AFTER, e.target.value);
+                      validate();
+                    }}
+                    min={1}
+                  />
+                </ErrableFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem style={{ maxWidth: 188 }}>
+                <EuiFormRow hasEmptyLabelSpace>
+                  <EuiSelect
+                    value={phaseData[PHASE_ROLLOVER_AFTER_UNITS]}
+                    onChange={e =>
+                      setPhaseData(PHASE_ROLLOVER_AFTER_UNITS, e.target.value)
+                    }
+                    options={[
+                      { value: 'd', text: 'days' },
+                      { value: 'h', text: 'hours' }
+                    ]}
+                  />
+                </EuiFormRow>
+              </EuiFlexItem>
+            </EuiFlexGroup>
 
           <ErrableFormRow
             label="Where would you like to allocate these indices?"
@@ -212,11 +245,64 @@ export class ColdPhase extends PureComponent {
                 >
                   Use number in warm phase
                 </EuiButtonEmpty>
-              </EuiFormRow>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </div>
-      </EuiAccordion>
+              ) : null}
+            >
+              <EuiSelect
+                value={phaseData[PHASE_NODE_ATTRS] || ' '}
+                options={nodeOptions}
+                onChange={async e => {
+                  await setPhaseData(PHASE_NODE_ATTRS, e.target.value);
+                  validate();
+                }}
+              />
+            </ErrableFormRow>
+
+            <EuiFlexGroup>
+              <EuiFlexItem grow={false} style={{ maxWidth: 188 }}>
+                <ErrableFormRow
+                  label="Number of replicas"
+                  errorKey={PHASE_REPLICA_COUNT}
+                  isShowingErrors={isShowingErrors}
+                  errors={errors}
+                >
+                  <EuiFieldNumber
+                    value={phaseData[PHASE_REPLICA_COUNT]}
+                    onChange={async e => {
+                      await setPhaseData(PHASE_REPLICA_COUNT, e.target.value);
+                      validate();
+                    }}
+                    min={0}
+                  />
+                </ErrableFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiFormRow hasEmptyLabelSpace>
+                  <EuiButtonEmpty
+                    flush="left"
+                    onClick={() =>
+                      setPhaseData(PHASE_REPLICA_COUNT, warmPhaseReplicaCount)
+                    }
+                  >
+                    Set to same as warm phase
+                  </EuiButtonEmpty>
+                </EuiFormRow>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </Fragment>
+        ) : (
+          <div>
+            <EuiSpacer />
+            <EuiButton
+              onClick={async () => {
+                await setPhaseData(PHASE_ENABLED, true);
+                validate();
+              }}
+            >
+              Activate cold phase
+            </EuiButton>
+          </div>
+        )}
+      </EuiDescribedFormGroup>
     );
   }
 }

@@ -114,32 +114,63 @@ export class DeletePhase extends PureComponent {
                 isShowingErrors={isShowingErrors}
                 errors={errors}
               >
-                <EuiFieldNumber
-                  value={phaseData[PHASE_ROLLOVER_AFTER]}
-                  onChange={async e => {
-                    setPhaseData(PHASE_ROLLOVER_AFTER, e.target.value);
-                    validate();
-                  }}
-                />
-              </ErrableFormRow>
-            </EuiFlexItem>
-            <EuiFlexItem style={{ maxWidth: 188 }}>
-              <EuiFormRow hasEmptyLabelSpace>
-                <EuiSelect
-                  value={phaseData[PHASE_ROLLOVER_AFTER_UNITS]}
-                  onChange={e =>
-                    setPhaseData(PHASE_ROLLOVER_AFTER_UNITS, e.target.value)
-                  }
-                  options={[
-                    { value: 'd', text: 'days' },
-                    { value: 'h', text: 'hours' }
-                  ]}
-                />
-              </EuiFormRow>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </div>
-      </EuiAccordion>
+                Deactive cold phase
+              </EuiButton>
+            </div>
+
+            <EuiSpacer size="m" />
+            <EuiTitle size="s">
+              <p>Configuration</p>
+            </EuiTitle>
+            <EuiSpacer size="m" />
+            <EuiFlexGroup>
+              <EuiFlexItem style={{ maxWidth: 188 }}>
+                <ErrableFormRow
+                  label="Delete indices after"
+                  errorKey={PHASE_ROLLOVER_AFTER}
+                  isShowingErrors={isShowingErrors}
+                  errors={errors}
+                >
+                  <EuiFieldNumber
+                    value={phaseData[PHASE_ROLLOVER_AFTER]}
+                    onChange={async e => {
+                      setPhaseData(PHASE_ROLLOVER_AFTER, e.target.value);
+                      validate();
+                    }}
+                    min={1}
+                  />
+                </ErrableFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem style={{ maxWidth: 188 }}>
+                <EuiFormRow hasEmptyLabelSpace>
+                  <EuiSelect
+                    value={phaseData[PHASE_ROLLOVER_AFTER_UNITS]}
+                    onChange={e =>
+                      setPhaseData(PHASE_ROLLOVER_AFTER_UNITS, e.target.value)
+                    }
+                    options={[
+                      { value: 'd', text: 'days' },
+                      { value: 'h', text: 'hours' }
+                    ]}
+                  />
+                </EuiFormRow>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </Fragment>
+        ) : (
+          <div>
+            <EuiSpacer />
+            <EuiButton
+              onClick={async () => {
+                await setPhaseData(PHASE_ENABLED, true);
+                validate();
+              }}
+            >
+              Activate delete phase
+            </EuiButton>
+          </div>
+        )}
+      </EuiDescribedFormGroup>
     );
   }
 }
