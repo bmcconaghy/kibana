@@ -9,8 +9,10 @@
 
 import { connect } from 'react-redux';
 import { Wizard as PresentationComponent } from './wizard';
-import { saveLifecycle } from '../../store/actions';
+import { saveLifecycle, fetchIndexTemplates } from '../../store/actions';
+
 import {
+  getIndexTemplates,
   getIndexTemplatePatch,
   getBootstrapEnabled,
   getIndexName,
@@ -25,8 +27,10 @@ export const Wizard = connect(
     indexName: getIndexName(state),
     aliasName: getAliasName(state),
     validateLifecycle: () => validateLifecycle(state),
+    indexTemplates: getIndexTemplates(state),
   }),
   {
+    fetchIndexTemplates,
     saveLifecycle
   }
 )(PresentationComponent);
