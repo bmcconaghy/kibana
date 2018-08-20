@@ -114,7 +114,7 @@ export class DeletePhase extends PureComponent {
                 isShowingErrors={isShowingErrors}
                 errors={errors}
               >
-                Deactive cold phase
+                Deactive delete phase
               </EuiButton>
             </div>
 
