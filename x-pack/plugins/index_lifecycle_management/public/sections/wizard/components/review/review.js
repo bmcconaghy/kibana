@@ -135,31 +135,34 @@ export class Review extends Component {
       <div className="euiAnimateContentLoad">
         <EuiSpacer />
 
-        <Fragment>
-          {originalPolicyName ? (
-            <EuiFormRow label="Policy options" style={{ maxWidth: '100%' }}>
-              <EuiSwitch
-                style={{ maxWidth: '100%' }}
-                checked={saveAsNewPolicy}
-                onChange={async e => {
-                  await setSaveAsNewPolicy(e.target.checked);
-                  validate();
-                }}
-                label={
-                  <span>
-                    Save this <strong>as a new policy</strong> so it does not
-                    effect other templates.
-                  </span>
-                }
-              />
-            </EuiFormRow>
-          ) : null}
-          {saveAsNewPolicy ? (
-            <ErrableFormRow
-              label="Policy name"
-              errorKey={STRUCTURE_POLICY_NAME}
-              isShowingErrors={isShowingErrors}
-              errors={errors}
+        <EuiSpacer />
+
+        <EuiCallOut
+          title="Your changes affect these index template configurations"
+          color="warning"
+        >
+          <h4>{`${affectedIndexTemplates.length} Index ${affectedIndexTemplates.length === 1 ? 'template' : 'templates'}`}</h4>
+          <ul>
+            {affectedIndexTemplates.map(template => (
+              <li key={template}>{template}</li>
+            ))}
+          </ul>
+          <h4>{`${affectedIndices.length} ${affectedIndices.length === 1 ? 'Index' : 'Indices' }`}</h4>
+          { isLoadingAffectedIndices ? (
+            <EuiLoadingSpinner size="l"/>
+          ) : (
+            <ul>
+              {affectedIndices.map(index => <li key={index}>{index}</li>)}
+            </ul>
+          ) }
+        </EuiCallOut>
+
+        {bootstrapEnabled ? (
+          <Fragment>
+            <EuiSpacer />
+            <EuiCallOut
+              title="This action creates a new index alias"
+              color="success"
             >
               <EuiFieldText
                 value={selectedPolicyName}
@@ -224,9 +227,7 @@ export class Review extends Component {
           <Fragment>
             <EuiTitle>
               <h4>
-                We will be changing the index template named `{
-                  selectedIndexTemplateName
-                }`
+                <EuiCode>{selectedIndexTemplateName}</EuiCode> index template changes
               </h4>
             </EuiTitle>
             <EuiSpacer size="m" />
@@ -248,9 +249,9 @@ export class Review extends Component {
                   </EuiTitle>
                   <EuiText>
                     <p>
-                      <strong>You are editing an existing policy</strong>. This means that any saves you make
-                  will also change any index templates this policy is attached to. You can instead save
-                  these changes and make it a brand new policy that only changes the template you
+                      <strong>You are editing an existing policy</strong>. Any changes you make
+                  will also change index templates that this policy is attached to. Alternately, you can save
+                  these changes in a new policy and only change the index template you
                   selected.
                     </p>
                   </EuiText>

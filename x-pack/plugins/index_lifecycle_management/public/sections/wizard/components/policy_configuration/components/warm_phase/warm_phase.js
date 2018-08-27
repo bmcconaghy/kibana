@@ -282,8 +282,8 @@ export class WarmPhase extends PureComponent {
           <EuiFlexGroup>
             <EuiFlexItem grow={false} style={{ maxWidth: 188 }}>
               <ErrableFormRow
-                label="Number of replicas"
-                errorKey={PHASE_REPLICA_COUNT}
+                label="Choose where to allocate indices by node attribute"
+                errorKey={PHASE_NODE_ATTRS}
                 isShowingErrors={isShowingErrors}
                 errors={errors}
               >

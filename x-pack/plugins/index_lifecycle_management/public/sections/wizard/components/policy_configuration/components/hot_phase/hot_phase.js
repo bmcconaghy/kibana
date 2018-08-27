@@ -80,7 +80,8 @@ export class HotPhase extends PureComponent {
         description={
           <Fragment>
             <p>
-              This phase is required. Your index is being queried and in active writing mode.
+              This phase is required. A hot index is being queried and actively written to.
+              You can optimize this phase for write throughput.
             </p>
             {isShowingErrors ? (
               <EuiTextColor color="danger">
