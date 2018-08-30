@@ -207,7 +207,8 @@ export class HotPhase extends PureComponent {
                     }}
                     options={[
                       { value: 'd', text: 'days' },
-                      { value: 'h', text: 'hours' }
+                      { value: 'h', text: 'hours' },
+                      { value: 's', text: 'seconds' },
                     ]}
                   />
                 </ErrableFormRow>
