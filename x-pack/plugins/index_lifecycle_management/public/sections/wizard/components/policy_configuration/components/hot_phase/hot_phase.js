@@ -21,7 +21,7 @@ import {
   EuiSwitch,
   EuiFormRow,
   EuiDescribedFormGroup,
-  EuiBetaBadge,
+  EuiIcon,
 } from '@elastic/eui';
 import { LearnMoreLink } from '../../../../../../components/learn_more_link';
 import {
@@ -73,7 +73,7 @@ export class HotPhase extends PureComponent {
         title={
           <div>
             <span className="eui-displayInlineBlock eui-alignMiddle">Hot phase</span>{' '}
-            <EuiBetaBadge label="Enabled" iconType="check" className="eui-alignMiddle" />
+            <EuiIcon label="Enabled" type="checkInCircleFilled" color="blue" className="eui-alignMiddle" />
           </div>
         }
         titleSize="s"
