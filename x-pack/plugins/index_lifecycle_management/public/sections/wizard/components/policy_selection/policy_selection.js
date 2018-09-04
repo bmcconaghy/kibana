@@ -27,10 +27,9 @@ export class PolicySelection extends Component {
     policies: PropTypes.array.isRequired,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.props.fetchPolicies();
   }
-
   selectPolicy(policyName) {
     const policy = this.props.policies.find(policy => policy.name === policyName);
     this.props.setSelectedPolicy(policy);
@@ -40,6 +39,9 @@ export class PolicySelection extends Component {
     const { policies, selectedPolicyName } = this.props;
     let existingPoliciesSelect;
     const policiesExist = policies.length > 0;
+    if (!policiesExist) {
+      return null;
+    }
     if (policiesExist) {
       const options = policies.map(item => ({ value: item.name, text: item.name }));
       options.unshift({
@@ -63,7 +65,7 @@ export class PolicySelection extends Component {
 
     return (
       <EuiDescribedFormGroup
-        title={<h4>{policiesExist ? 'Select or c' : 'C'}reate a policy</h4>}
+        title={<h4>Select or create a policy</h4>}
         titleSize="s"
         description={`An index lifecycle policy is a
           blueprint for transitioning your data over time.
