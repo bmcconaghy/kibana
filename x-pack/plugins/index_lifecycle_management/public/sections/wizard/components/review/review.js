@@ -124,6 +124,7 @@ export class Review extends Component {
       bootstrapEnabled,
       aliasName,
       policies,
+      isNewPolicy
     } = this.props;
 
     const { affectedIndices, isLoadingAffectedIndices, isShowingErrors } = this.state;
@@ -258,24 +259,27 @@ export class Review extends Component {
                   <EuiSpacer />
                 </Fragment>
               ) : null }
-              <EuiFormRow label="Policy options" style={{ maxWidth: '100%' }}>
-                <EuiSwitch
-                  style={{ maxWidth: '100%' }}
-                  checked={saveAsNewPolicy}
-                  onChange={async e => {
-                    await setSaveAsNewPolicy(e.target.checked);
-                    validate();
-                  }}
-                  label={
-                    <span>
-                      Save this <strong>as a new policy</strong>
-                    </span>
-                  }
-                />
-              </EuiFormRow>
+              { isNewPolicy ? null : (
+                <EuiFormRow label="Policy options" style={{ maxWidth: '100%' }}>
+                  <EuiSwitch
+                    style={{ maxWidth: '100%' }}
+                    checked={saveAsNewPolicy}
+                    onChange={async e => {
+                      await setSaveAsNewPolicy(e.target.checked);
+                      validate();
+                    }}
+                    label={
+                      <span>
+                    Save this <strong>as a new policy</strong>
+                      </span>
+                    }
+                  />
+                </EuiFormRow>
+              )}
+
             </Fragment>
           ) : null}
-          {saveAsNewPolicy ? (
+          {saveAsNewPolicy || isNewPolicy ? (
             <Fragment>
               <EuiTitle size="s">
                 <h3>Save your work</h3>
@@ -312,6 +316,7 @@ export class Review extends Component {
               color="secondary"
               iconType="check"
               onClick={() => done(lifecycle)}
+              disabled={!selectedPolicyName}
             >
               Looks good, save changes
             </EuiButton>

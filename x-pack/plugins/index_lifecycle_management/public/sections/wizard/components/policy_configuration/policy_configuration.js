@@ -34,7 +34,6 @@ import { PolicySelection } from '../policy_selection/policy_selection.container'
 export class PolicyConfiguration extends Component {
   static propTypes = {
     setSelectedPolicyName: PropTypes.func.isRequired,
-    setSaveAsNewPolicy: PropTypes.func.isRequired,
     setIndexName: PropTypes.func.isRequired,
     setAliasName: PropTypes.func.isRequired,
     setBootstrapEnabled: PropTypes.func.isRequired,
@@ -42,7 +41,6 @@ export class PolicyConfiguration extends Component {
     back: PropTypes.func.isRequired,
     validate: PropTypes.func.isRequired,
     selectedPolicyName: PropTypes.string.isRequired,
-    saveAsNewPolicy: PropTypes.bool.isRequired,
     errors: PropTypes.object.isRequired,
     bootstrapEnabled: PropTypes.bool.isRequired,
     indexName: PropTypes.string.isRequired,
