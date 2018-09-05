@@ -356,6 +356,7 @@ export class WarmPhase extends PureComponent {
                         );
                         validate();
                       }}
+                      min={0}
                     />
                   </ErrableFormRow>
                 </EuiFlexItem>
