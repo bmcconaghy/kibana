@@ -53,23 +53,13 @@ export class WarmPhase extends PureComponent {
       [WARM_PHASE_ON_ROLLOVER]: PropTypes.bool.isRequired,
       [PHASE_ROLLOVER_ALIAS]: PropTypes.string.isRequired,
       [PHASE_FORCE_MERGE_ENABLED]: PropTypes.bool.isRequired,
-      [PHASE_FORCE_MERGE_SEGMENTS]: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-      ]).isRequired,
+      [PHASE_FORCE_MERGE_SEGMENTS]: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+        .isRequired,
       [PHASE_NODE_ATTRS]: PropTypes.string.isRequired,
-      [PHASE_PRIMARY_SHARD_COUNT]: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-      ]).isRequired,
-      [PHASE_REPLICA_COUNT]: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-      ]).isRequired,
-      [PHASE_ROLLOVER_AFTER]: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-      ]).isRequired,
+      [PHASE_PRIMARY_SHARD_COUNT]: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+        .isRequired,
+      [PHASE_REPLICA_COUNT]: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+      [PHASE_ROLLOVER_AFTER]: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       [PHASE_ROLLOVER_AFTER_UNITS]: PropTypes.string.isRequired,
     }).isRequired,
 
@@ -112,9 +102,8 @@ export class WarmPhase extends PureComponent {
         description={
           <Fragment>
             <p>
-              Your index is frequently queried, but is read-only.
-              Use this phase to optimize for search.Your index is being queried
-              and in active writing mode.
+              Your index becomes read-only when it enters the warm phase. You can optimize this
+              phase for search.
             </p>
             {isShowingErrors ? (
               <EuiTextColor color="danger">
@@ -148,38 +137,15 @@ export class WarmPhase extends PureComponent {
           />
         }
       >
-        <div style={{ padding: '16px 16px 16px 40px', marginLeft: '-16px' }}>
-          <EuiTitle size="s">
-            <p>Configuration</p>
-          </EuiTitle>
-          <EuiSpacer size="m" />
-          {hotPhaseRolloverEnabled ? (
-            <EuiFlexGroup>
-              <EuiFlexItem>
-                <EuiSwitch
-                  label="Move to warm phase on rollover"
-                  checked={this.state.applyOnRollover}
-                  onChange={async e => {
-                    await this.setState({ applyOnRollover: e.target.checked });
-                    validate();
-                  }}
-                />
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          ) : null}
-          {!this.state.applyOnRollover ? (
-            <EuiFlexGroup>
-              <EuiFlexItem style={{ maxWidth: 188 }}>
-                <ErrableFormRow
-                  label="Move to warm phase after"
-                  errorKey={PHASE_ROLLOVER_AFTER}
-                  isShowingErrors={isShowingErrors}
-                  errors={errors}
-                >
-                  <EuiFieldNumber
-                    value={phaseData[PHASE_ROLLOVER_AFTER]}
-                    onChange={async e => {
-                      setPhaseData(PHASE_ROLLOVER_AFTER, e.target.value);
+        <Fragment>
+          {phaseData[PHASE_ENABLED] ? (
+            <Fragment>
+              <EuiFormRow hasEmptyLabelSpace>
+                <div>
+                  <EuiButton
+                    color="danger"
+                    onClick={async () => {
+                      await setPhaseData(PHASE_ENABLED, false);
                       validate();
                     }}
                   >
@@ -227,10 +193,7 @@ export class WarmPhase extends PureComponent {
                       <EuiSelect
                         value={phaseData[PHASE_ROLLOVER_AFTER_UNITS]}
                         onChange={async e => {
-                          await setPhaseData(
-                            PHASE_ROLLOVER_AFTER_UNITS,
-                            e.target.value
-                          );
+                          await setPhaseData(PHASE_ROLLOVER_AFTER_UNITS, e.target.value);
                           validate();
                         }}
                         options={[
@@ -281,6 +244,16 @@ export class WarmPhase extends PureComponent {
                 errorKey={PHASE_NODE_ATTRS}
                 isShowingErrors={isShowingErrors}
                 errors={errors}
+                helpText={
+                  phaseData[PHASE_NODE_ATTRS] ? (
+                    <EuiButtonEmpty
+                      flush="left"
+                      onClick={() => showNodeDetailsFlyout(phaseData[PHASE_NODE_ATTRS])}
+                    >
+                      View node details
+                    </EuiButtonEmpty>
+                  ) : null
+                }
               >
                 <EuiSelect
                   value={phaseData[PHASE_NODE_ATTRS] || ' '}
@@ -365,10 +338,7 @@ export class WarmPhase extends PureComponent {
                     <EuiButtonEmpty
                       flush="left"
                       onClick={async () => {
-                        await setPhaseData(
-                          PHASE_PRIMARY_SHARD_COUNT,
-                          hotPhasePrimaryShardCount
-                        );
+                        await setPhaseData(PHASE_REPLICA_COUNT, hotPhaseReplicaCount);
                         validate();
                       }}
                     >
@@ -378,7 +348,7 @@ export class WarmPhase extends PureComponent {
                 </EuiFlexItem>
               </EuiFlexGroup>
 
-              {hotPhaseReplicaCount > 1 ? (
+              {hotPhasePrimaryShardCount > 1 ? (
                 <Fragment>
                   <EuiSpacer />
                   <EuiTitle size="s">
@@ -387,9 +357,7 @@ export class WarmPhase extends PureComponent {
                   <EuiTitle size="xs">
                     <EuiTextColor color="subdued">
                       Shrink the index into a new index with fewer primary shards.{' '}
-                      <LearnMoreLink
-                        docPath="indices-shrink-index.html#indices-shrink-index"
-                      />
+                      <LearnMoreLink docPath="indices-shrink-index.html#indices-shrink-index" />
                     </EuiTextColor>
                   </EuiTitle>
 
@@ -403,62 +371,59 @@ export class WarmPhase extends PureComponent {
                     }}
                     label="Shrink index"
                   />
+                  {phaseData[PHASE_SHRINK_ENABLED] ? (
+                    <Fragment>
+                      <EuiFlexGroup>
+                        <EuiFlexItem grow={false}>
+                          <ErrableFormRow
+                            label="Number of primary shards"
+                            errorKey={PHASE_PRIMARY_SHARD_COUNT}
+                            isShowingErrors={isShowingErrors}
+                            errors={errors}
+                          >
+                            <EuiFieldNumber
+                              value={phaseData[PHASE_PRIMARY_SHARD_COUNT]}
+                              onChange={async e => {
+                                await setPhaseData(PHASE_PRIMARY_SHARD_COUNT, e.target.value);
+                                validate();
+                              }}
+                              min={1}
+                            />
+                          </ErrableFormRow>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiFormRow hasEmptyLabelSpace>
+                            <EuiButtonEmpty
+                              flush="left"
+                              onClick={async () => {
+                                await setPhaseData(
+                                  PHASE_PRIMARY_SHARD_COUNT,
+                                  hotPhasePrimaryShardCount
+                                );
+                                validate();
+                              }}
+                            >
+                              Set to same as hot phase
+                            </EuiButtonEmpty>
+                          </EuiFormRow>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+
+                      <EuiSpacer />
+                    </Fragment>
+                  ) : null}
                 </Fragment>
-              ) : null }
+              ) : null}
 
               <EuiSpacer size="m" />
-
-              {phaseData[PHASE_SHRINK_ENABLED] ? (
-                <Fragment>
-                  <EuiFlexGroup>
-                    <EuiFlexItem grow={false}>
-                      <ErrableFormRow
-                        label="Number of primary shards"
-                        errorKey={PHASE_PRIMARY_SHARD_COUNT}
-                        isShowingErrors={isShowingErrors}
-                        errors={errors}
-                      >
-                        <EuiFieldNumber
-                          value={phaseData[PHASE_PRIMARY_SHARD_COUNT]}
-                          onChange={async e => {
-                            await setPhaseData(
-                              PHASE_PRIMARY_SHARD_COUNT,
-                              e.target.value
-                            );
-                            validate();
-                          }}
-                          min={1}
-                        />
-                      </ErrableFormRow>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiFormRow hasEmptyLabelSpace>
-                        <EuiButtonEmpty
-                          flush="left"
-                          onClick={async () => {
-                            await setPhaseData(
-                              PHASE_PRIMARY_SHARD_COUNT,
-                              hotPhasePrimaryShardCount
-                            );
-                            validate();
-                          }}
-                        >
-                          Set to same as hot phase
-                        </EuiButtonEmpty>
-                      </EuiFormRow>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-
-          <EuiSpacer size="m" />
 
               <EuiTitle size="s">
                 <p>Force merge</p>
               </EuiTitle>
               <EuiTitle size="xs">
                 <EuiTextColor color="subdued">
-                  Reduce the number of segments in your shard by merging smaller
-                  files and clearing deleted ones.{' '}
-                  <LearnMoreLink docPath="indices-forcemerge.html" />
+                  Reduce the number of segments in your shard by merging smaller files and clearing
+                  deleted ones. <LearnMoreLink docPath="indices-forcemerge.html" />
                 </EuiTextColor>
               </EuiTitle>
 
@@ -494,10 +459,7 @@ export class WarmPhase extends PureComponent {
                   <EuiFieldNumber
                     value={phaseData[PHASE_FORCE_MERGE_SEGMENTS]}
                     onChange={async e => {
-                      await setPhaseData(
-                        PHASE_FORCE_MERGE_SEGMENTS,
-                        e.target.value
-                      );
+                      await setPhaseData(PHASE_FORCE_MERGE_SEGMENTS, e.target.value);
                       validate();
                     }}
                     min={1}
