@@ -41,11 +41,13 @@ export const ScriptingHelpFlyout = ({
   const tabs = [{
     id: 'syntax',
     name: 'Syntax',
+    'aria-label': 'Syntax',
     ['data-test-subj']: 'syntaxTab',
     content: <ScriptingSyntax />,
   }, {
     id: 'test',
     name: 'Preview results',
+    'aria-label': 'Preview results',
     ['data-test-subj']: 'testTab',
     content: (
       <TestScript
