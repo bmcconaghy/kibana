@@ -136,12 +136,12 @@ export const phaseFromES = (phase, phaseName, defaultPolicy) => {
   policy[PHASE_ENABLED] = true;
   policy[PHASE_ROLLOVER_ENABLED] = false;
 
-  if (phase.after) {
-    if (phaseName === PHASE_WARM && phase.after === '0ms') {
+  if (phase.min_age) {
+    if (phaseName === PHASE_WARM && phase.min_age === '0ms') {
       policy[WARM_PHASE_ON_ROLLOVER] = true;
     } else {
-      const { size: after, units: afterUnits } = splitSizeAndUnits(
-        phase.after
+      const { size: minAge, units: minAgeUnits } = splitSizeAndUnits(
+        phase.min_age
       );
       policy[PHASE_ROLLOVER_AFTER] = after;
       policy[PHASE_ROLLOVER_AFTER_UNITS] = afterUnits;
@@ -223,8 +223,8 @@ export const phaseToES = (state, phase) => {
     return esPhase;
   }
 
-  if (isNumber(phase[PHASE_ROLLOVER_AFTER])) {
-    esPhase.after = `${phase[PHASE_ROLLOVER_AFTER]}${phase[PHASE_ROLLOVER_AFTER_UNITS]}`;
+  if (isNumber(phase[PHASE_ROLLOVER_MINIMUM_AGE])) {
+    esPhase.min_age = `${phase[PHASE_ROLLOVER_MINIMUM_AGE]}${phase[PHASE_ROLLOVER_MINIMUM_AGE_UNITS]}`;
   }
 
   esPhase.actions = {};
