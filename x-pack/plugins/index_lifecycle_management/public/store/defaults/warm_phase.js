@@ -25,7 +25,7 @@ export const defaultWarmPhase = {
   [PHASE_ROLLOVER_AFTER]: '',
   [PHASE_ROLLOVER_AFTER_UNITS]: 'd',
   [PHASE_NODE_ATTRS]: '',
-  [PHASE_SHRINK_ENABLED]: true,
+  [PHASE_SHRINK_ENABLED]: false,
   [PHASE_PRIMARY_SHARD_COUNT]: '',
   [PHASE_REPLICA_COUNT]: '',
   [WARM_PHASE_ON_ROLLOVER]: false
