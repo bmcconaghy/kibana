@@ -55,6 +55,12 @@ export const xpackMain = (kibana) => {
     },
 
     uiExports: {
+      injectDefaultVars(server) {
+        const config = server.config();
+        return {
+          spacesEnabled: config.get('xpack.spaces.enabled'),
+        };
+      },
       hacks: [
         'plugins/xpack_main/hacks/check_xpack_info_change',
       ],

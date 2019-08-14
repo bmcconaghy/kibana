@@ -67,7 +67,6 @@ export const telemetry = (kibana: any) => {
         return {
           telemetryEnabled: getXpackConfigWithDeprecated(config, 'telemetry.enabled'),
           telemetryUrl: getXpackConfigWithDeprecated(config, 'telemetry.url'),
-          spacesEnabled: config.get('xpack.spaces.enabled'),
           telemetryBanner: config.get('xpack.telemetry.banner'),
           telemetryOptedIn: null,
           activeSpace: null,
